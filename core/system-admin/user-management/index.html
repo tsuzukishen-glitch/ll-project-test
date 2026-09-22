@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <script>
+        window.ASSETS_PATH = '../../../';
+        window.BREADCRUMBS = [
+            { name: '系統管理', link: '' },
+            { name: '員工管理', link: '' } 
+        ];
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>良聯｜員工管理</title>
+    <link rel="shortcut icon" href="../../../assets/images/favicons/favicon.ico" type="image/x-icon">
+    <!-- 引用本地 Bootstrap CSS -->
+    <link href="../../../assets/css/bootstrap.min.css" rel="stylesheet">
+    <!-- 引用本地 Font Awesome CSS -->
+    <link href="../../../assets/css/all.min.css" rel="stylesheet">
+    <!-- 母版樣式 -->
+    <link href="../../../assets/css/master_style.css" rel="stylesheet">
+    <!-- 員工管理樣式 -->
+    <link href="user.css" rel="stylesheet">
+    <style>
+        /* 補充：員工列表排序樣式 */
+        .user-table th.sortable {
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.2s;
+        }
+        .user-table th.sortable:hover {
+            background-color: #e2e8f0;
+        }
+        .user-table th.sortable i {
+            margin-left: 5px;
+            color: #cbd5e1;
+            font-size: 0.8rem;
+        }
+        .user-table th.sortable.active-sort i {
+            color: var(--primary-blue);
+        }
+    </style>
+</head>
+<body>
+    <!-- 側邊欄 -->
+    <div id="sidebar-placeholder"></div>
+    <!-- 側邊欄由 JavaScript 動態生成 -->
+
+    <!-- 主內容區 -->
+    <div class="main-content" id="mainContent">
+        <!-- 頂部導航 -->
+        <div id="header-placeholder"></div>
+        <!-- 頂部導航由 JavaScript 動態生成 -->
+
+        <!-- 主要內容 -->
+        <div class="container-fluid" style="padding: 2rem;">
+            <!-- 頁面標題 -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="fw-bold mb-2">員工管理</h3>
+                    <p class="text-muted mb-0">管理並檢視所有 ERP 員工基本資料及狀態</p>
+                </div>
+            </div>
+
+            <!-- 統計卡片區 -->
+            <div class="user-stats">
+                <div class="stat-card total">
+                    <div class="stat-number" id="totalUsers">0</div>
+                    <div class="stat-header">
+                        <div class="stat-title">總員工數</div>
+                    </div>
+                </div>
+                <div class="stat-card active">
+                    <div class="stat-number" id="activeUsers">0</div>
+                    <div class="stat-header">
+                        <div class="stat-title">在職員工</div>
+                    </div>
+
+                </div>
+                <div class="stat-card inactive">
+                    <div class="stat-number" id="inactiveUsers">0</div>
+                    <div class="stat-header">
+                        <div class="stat-title">離職員工</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 員工表格容器 -->
+            <div class="user-table-container">
+                <!-- 搜尋與篩選區 -->
+                <div class="search-filters">
+                    <div>
+                        <label class="form-label">搜尋員工</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="searchInput" placeholder="姓名、員工編號、部門...">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">部門篩選</label>
+                        <select class="form-select" id="deptFilter">
+                            <option value="">全部部門</option>
+                            <option value="工程部">工程部</option>
+                            <option value="業務部">業務部</option>
+                            <option value="採購部">採購部</option>
+                            <option value="行政部">行政部</option>
+                            <option value="財務部">財務部</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">狀態篩選</label>
+                        <select class="form-select" id="statusFilter">
+                            <option value="">全部狀態</option>
+                            <option value="active">在職</option>
+                            <option value="inactive">離職</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">職位篩選</label>
+                        <select class="form-select" id="positionFilter">
+                            <option value="">全部職位</option>
+                            <option value="經理">經理</option>
+                            <option value="主管">主管</option>
+                            <option value="工程師">工程師</option>
+                            <option value="專員">專員</option>
+                            <option value="助理">助理</option>
+                        </select>
+                    </div>
+                    <!-- 新增：清空篩選按鈕 -->
+                    <div class="d-flex align-items-end">
+                        <button class="btn btn-outline-secondary w-100" id="clearFilterBtn">
+                            <i class="fas fa-times me-2"></i>清空篩選
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 員工表格 -->
+                <div class="table-responsive">
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th class="sortable" onclick="window.userManagement.sortData('id')">
+                                    員工代號 <i class="fas fa-sort" id="icon-id"></i>
+                                </th>
+                                <th class="sortable" onclick="window.userManagement.sortData('name')">
+                                    員工姓名 <i class="fas fa-sort" id="icon-name"></i>
+                                </th>
+                                <th class="sortable" onclick="window.userManagement.sortData('deptCode')">
+                                    部門代號 <i class="fas fa-sort" id="icon-deptCode"></i>
+                                </th>
+                                <th class="sortable" onclick="window.userManagement.sortData('department')">
+                                    部門名稱 <i class="fas fa-sort" id="icon-department"></i>
+                                </th>
+                                <th>職位代號</th>
+                                <th>職位名稱</th>
+                                <th>分機</th>
+                                <th>電子信箱</th>
+                                <th class="sortable" onclick="window.userManagement.sortData('status')">
+                                    狀態 <i class="fas fa-sort" id="icon-status"></i>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="userTableBody">
+                            <!-- 表格內容由 JavaScript 動態生成 -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 無資料顯示 -->
+                <div class="text-center py-5" id="noData" style="display: none;">
+                    <i class="fas fa-users fa-4x text-muted mb-3"></i>
+                    <h5 class="text-muted">尚無員工資料</h5>
+                    <p class="text-muted">員工資料將由 ERP 系統同步匯入</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 使用者詳細資料面板 -->
+    <div class="user-detail-overlay" id="userDetailOverlay" onclick="closeUserDetail()"></div>
+    <div class="user-detail-panel" id="userDetailPanel">
+        <div class="panel-header">
+            <button class="panel-back-btn" onclick="closeUserDetail()">
+                <i class="fas fa-arrow-left"></i>
+                <span>返回</span>
+            </button>
+        </div>
+
+        <div class="panel-content" id="panelContent">
+            <!-- 頭像與基本資訊 -->
+            <div class="panel-avatar-section">
+                <div class="panel-avatar" id="panelAvatar">王</div>
+                <div class="panel-user-name" id="panelUserName">王大明</div>
+                <div class="panel-user-title" id="panelUserTitle">工程部 - 專案經理</div>
+            </div>
+
+            <!-- 員工基本資料 -->
+            <div class="panel-info-section">
+                <div class="panel-section-title">員工資料</div>
+                <div class="panel-info-row">
+                    <div class="panel-info-label">員工代號</div>
+                    <div class="panel-info-value">
+                        <span class="user-id-badge" id="panelUserId">-</span>
+                    </div>
+                </div>
+                <div class="panel-info-row">
+                    <div class="panel-info-label">員工姓名</div>
+                    <div class="panel-info-value" id="panelName">-</div>
+                </div>
+                <div class="panel-info-row">
+                    <div class="panel-info-label">部門代號</div>
+                    <div class="panel-info-value" id="panelDeptCode">-</div>
+                </div>
+                <div class="panel-info-row">
+                    <div class="panel-info-label">部門名稱</div>
+                    <div class="panel-info-value" id="panelDept">-</div>
+                </div>
+                <div class="panel-info-row">
+                    <div class="panel-info-label">職位代號</div>
+                    <div class="panel-info-value" id="panelPositionCode">-</div>
+                </div>
+                <div class="panel-info-row">
+                    <div class="panel-info-label">職位名稱</div>
+                    <div class="panel-info-value" id="panelPosition">-</div>
+                </div>
+                <div class="panel-info-row">
+                    <div class="panel-info-label">狀態</div>
+                    <div class="panel-info-value">
+                        <span class="user-status-badge status-active" id="panelStatus">在職</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 聯絡資訊 -->
+            <div class="panel-info-section">
+                <div class="panel-section-title">聯絡資訊</div>
+                <div class="panel-info-row">
+                    <div class="panel-info-label">分機</div>
+                    <div class="panel-info-value" id="panelExt">-</div>
+                </div>
+                <div class="panel-info-row">
+                    <div class="panel-info-label">電子信箱</div>
+                    <div class="panel-info-value" id="panelEmail">-</div>
+                </div>
+                <div class="panel-info-row">
+                    <div class="panel-info-label">手機號碼</div>
+                    <div class="panel-info-value" id="panelPhone">-</div>
+                </div>
+            </div>
+
+            <!-- 組織資訊 -->
+            <div class="panel-info-section">
+                <div class="panel-section-title">組織資訊</div>
+                <div class="panel-info-row">
+                    <div class="panel-info-label">到職日期</div>
+                    <div class="panel-info-value" id="panelHireDate">-</div>
+                </div>
+                <div class="panel-info-row" id="panelLeaveDateRow" style="display: none;">
+                    <div class="panel-info-label">離職日期</div>
+                    <div class="panel-info-value" id="panelLeaveDate">-</div>
+                </div>
+                <div class="panel-info-row">
+                    <div class="panel-info-label">年資</div>
+                    <div class="panel-info-value" id="panelTenure">-</div>
+                </div>
+            </div>
+
+            <!-- 最近登入記錄 -->
+            <div class="panel-info-section">
+                <div class="panel-section-title">
+                    <i class="fas fa-history me-2"></i>最近登入記錄
+                </div>
+                <div id="panelLoginLogs">
+                    <!-- 登入記錄由 JavaScript 動態生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="../../../assets/js/bootstrap.bundle.min.js"></script>
+    <!-- 路徑配置工具 -->
+    <script src="../../../assets/js/path_config.js"></script>
+    <!-- 母版腳本 -->
+    <script src="../../../assets/js/master_script.js"></script>
+    <!-- 側邊欄+頂部導航 JavaScript -->
+    <script src="../../../assets/js/layout_loader.js"></script>
+    <!-- 員工管理 JavaScript -->
+    <script src="user.js"></script>
+</body>
+</html>

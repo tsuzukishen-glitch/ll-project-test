@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <script>
+        window.ASSETS_PATH = '../../../';
+        window.BREADCRUMBS = [
+            { name: '系統管理', link: '' },
+            { name: '權限管理', link: '' } 
+        ];
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>良聯｜權限管理</title>
+    <link rel="shortcut icon" href="../../../assets/images/favicons/favicon.ico" type="image/x-icon">
+    <!-- 引用本地 Bootstrap CSS -->
+    <link href="../../../assets/css/bootstrap.min.css" rel="stylesheet">
+    <!-- 引用本地 Font Awesome CSS -->
+    <link href="../../../assets/css/all.min.css" rel="stylesheet">
+    <!-- 母版樣式 -->
+    <link href="../../../assets/css/master_style.css" rel="stylesheet">
+    <!-- 權限管理樣式 -->
+    <link href="permission.css" rel="stylesheet">
+</head>
+<body>
+    <!-- 側邊欄 -->
+    <div id="sidebar-placeholder"></div>
+
+    <!-- 主內容區 -->
+    <div class="main-content" id="mainContent">
+        <!-- 頂部導航 -->
+        <div id="header-placeholder"></div>
+
+        <!-- 主要內容 -->
+        <div class="container-fluid" style="padding: 2rem;">
+            <!-- 頁面標題 -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="fw-bold mb-2">權限管理</h3>
+                    <p class="text-muted mb-0">管理系統角色、用戶權限和功能訪問控制</p>
+                </div>
+            </div>
+
+            <!-- 頁籤導航 -->
+            <ul class="nav nav-tabs permission-tabs" id="permissionTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="roles-tab" data-bs-toggle="tab" data-bs-target="#roles" type="button" role="tab">
+                        <i class="fas fa-user-tag me-2"></i>角色管理
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="permissions-tab" data-bs-toggle="tab" data-bs-target="#permissions" type="button" role="tab">
+                        <i class="fas fa-key me-2"></i>功能權限矩陣
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button" role="tab">
+                        <i class="fas fa-users me-2"></i>用戶管理
+                    </button>
+                </li>
+            </ul>
+
+            <!-- 頁籤內容 -->
+            <div class="tab-content" id="permissionTabContent">
+                
+                <!-- 1. 角色管理 (卡片模式) -->
+                <div class="tab-pane fade show active" id="roles" role="tabpanel" aria-labelledby="roles-tab">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bold mb-0">角色管理</h5>
+                        <button class="btn btn-primary" onclick="showAddRoleModal()">
+                            <i class="fas fa-plus"></i> 新增角色
+                        </button>
+                    </div>
+                    
+                    <!-- 卡片列表容器 (Row) -->
+                    <div class="row g-4" id="rolesList">
+                        <!-- JS 動態生成 -->
+                    </div>
+                </div>
+
+                <!-- 2. 功能權限矩陣 -->
+                <div class="tab-pane fade" id="permissions" role="tabpanel">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0">功能權限矩陣</h5>
+                        <button class="btn btn-primary" onclick="savePermissions()">
+                            <i class="fas fa-save me-2"></i>保存變更
+                        </button>
+                    </div>
+
+                    <!-- 控制列 -->
+                    <div class="matrix-control-bar d-flex flex-wrap align-items-center gap-3">
+                        <div class="d-flex align-items-center">
+                            <label class="fw-bold text-nowrap mb-0 me-2">設定角色：</label>
+                            <select class="form-select" id="matrixRoleSelect" style="min-width: 200px;" onchange="renderPermissionTable()">
+                                <!-- JS 動態填充 -->
+                            </select>
+                        </div>
+                        <div class="text-muted d-flex align-items-center border-start ps-3" style="min-width: 200px;">
+                            <span id="matrixRoleHint" class="text-nowrap"></span>
+                        </div>
+                        <!-- 權限說明圖例 -->
+                        <div class="legend-item border-start ps-3">
+                            <span class="legend-badge full">完全控制</span>
+                            <span class="legend-desc">含所有權限</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-badge edit">編輯/執行</span>
+                            <span class="legend-desc">可新增修改執行作業</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-badge view">檢視</span>
+                            <span class="legend-desc">僅查看檢視頁面</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-badge none">無權限</span>
+                            <span class="legend-desc">該功能隱藏</span>
+                        </div>
+                    </div>
+
+                    <div class="permission-table-container">
+                        <table class="table permission-table" id="permissionTable">
+                            <thead class="sticky-header">
+                                <tr id="tableHeaderRow">
+                                    <th class="function-col" style="width: 40%;">功能模組 / 項目</th>
+                                    <th style="width: 60%;">權限設定</th>
+                                </tr>
+                            </thead>
+                            <tbody id="permissionTableBody">
+                                <!-- JS 動態生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 3. 用戶管理 -->
+                <div class="tab-pane fade" id="users" role="tabpanel">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bold mb-0">用戶管理</h5>
+                    </div>
+                    
+                    <div class="search-filters-container">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label">關鍵字搜尋</label>
+                                <div class="position-relative">
+                                    <input type="text" class="form-control" id="userSearchInput" placeholder="搜尋姓名或 Email..." oninput="searchUsers()">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">部門篩選</label>
+                                <select class="form-select" id="deptFilter" onchange="searchUsers()">
+                                    <option value="">所有部門</option>
+                                    <option value="業務部">業務部</option>
+                                    <option value="工程部">工程部</option>
+                                    <option value="財務部">財務部</option>
+                                    <option value="行政部">行政部</option>
+                                    <option value="研發部">研發部</option>
+                                    <option value="採購部">採購部</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">角色篩選</label>
+                                <select class="form-select" id="roleFilter" onchange="searchUsers()">
+                                    <option value="">所有角色</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="user-management-table">
+                        <table class="user-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 20%" onclick="sortUsers('name')">員工姓名 <span class="sort-icon"></span></th>
+                                    <th style="width: 20%" onclick="sortUsers('employeeId')">員工代號 <span class="sort-icon"></span></th>
+                                    <th style="width: 20%" onclick="sortUsers('email')">電子信箱 <span class="sort-icon"></span></th>
+                                    <th style="width: 20%" onclick="sortUsers('department')">部門名稱 <span class="sort-icon"></span></th>
+                                    <th style="width: 20%" onclick="sortUsers('roles')">所屬角色 (可複選) <span class="sort-icon"></span></th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: 新增/編輯角色 -->
+    <div class="modal fade" id="roleModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="roleModalTitle">新增角色</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="roleId">
+                    <div class="mb-3">
+                        <label class="form-label required">角色名稱</label>
+                        <input type="text" class="form-control" id="roleName" placeholder="例如：採購專員">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">綁定功能模組 (權限範圍)</label>
+                        <select class="form-select" id="roleModuleScope">
+                            <option value="all">全域 (所有系統)</option>
+                        </select>
+                        <div class="form-text">設定後，該角色的權限列表將只顯示相關的系統模組。</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">角色描述</label>
+                        <textarea class="form-control" id="roleDescription" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">識別顏色</label>
+                        <select class="form-select" id="roleColor">
+                            <option value="#dc2626">紅色 (高權限)</option>
+                            <option value="#ea580c">橙色 (管理職)</option>
+                            <option value="#2563eb" selected>藍色 (一般職)</option>
+                            <option value="#059669">綠色 (特定部門)</option>
+                            <option value="#7c3aed">紫色 (外部/其他)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="saveRole()">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Containers -->
+    <div class="modal fade detail-modal" id="usersModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-users me-2"></i><span id="usersModalTitle"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="usersModalBody"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade detail-modal" id="permissionsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-key me-2"></i><span id="permissionsModalTitle"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="permissionsModalBody"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../../../assets/js/bootstrap.bundle.min.js"></script>
+    <script src="../../../assets/js/path_config.js"></script>
+    <script src="../../../assets/js/master_script.js"></script>
+    <script src="../../../assets/js/layout_loader.js"></script>
+    <script src="permission.js"></script>
+</body>
+</html>

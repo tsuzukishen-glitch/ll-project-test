@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <script>
+        window.ASSETS_PATH = '../../';
+        window.BREADCRUMBS = [
+            { name: '工程管理平台', link: '' }, // 分類
+            { name: '首頁', link: '' }
+        ];
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>良聯｜工程管理平台</title>
+    <link rel="shortcut icon" href="../../assets/images/favicons/favicon.ico" type="image/x-icon">
+    <!-- 引用本地 Bootstrap CSS -->
+    <link href="../../assets/css/bootstrap.min.css" rel="stylesheet">
+    <!-- 引用本地 Font Awesome CSS -->
+    <link href="../../assets/css/all.min.css" rel="stylesheet">
+    <!-- 母版樣式 -->
+    <link href="../../assets/css/master_style.css" rel="stylesheet">
+    <!-- 首頁樣式 -->
+    <link href="home.css" rel="stylesheet">
+</head>
+<body>
+    <!-- 側邊欄 -->
+    <div id="sidebar-placeholder"></div>
+    <!-- 側邊欄由 JavaScript 動態生成 -->
+
+    <!-- 主內容區 -->
+    <div class="main-content" id="mainContent">
+        <!-- 頂部導航 -->
+        <div id="header-placeholder"></div>
+        <!-- 頂部導航由 JavaScript 動態生成 -->
+
+        <!-- 主要內容 -->
+        <div class="container-fluid" style="padding: 2rem;">
+            <!-- 頁面標題 -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="fw-bold mb-2">歡迎回來,張育霖</h3>
+                    <p class="text-muted mb-0">今天是 2025年10月2日 星期四</p>
+                </div>
+            </div>
+
+            <!-- 功能模組 -->
+            <h2 class="section-title">
+                <i class="fas fa-th-large"></i>
+                功能模組
+            </h2>
+
+            <div class="modules-grid">
+                <!-- 報價估算系統 -->
+                <a href="../../modules/quotation/project-list/index.html" class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">
+                            <i class="fas fa-calculator"></i>
+                        </div>
+                        <span class="module-badge">使用中</span>
+                    </div>
+                    <h3 class="module-title">報價估算系統</h3>
+                    <p class="module-description">
+                        提供完整的專案成本估算、材料預算與工程報價功能，支援多版本管理與歷史記錄查詢。
+                    </p>
+                </a>
+                
+                <!-- 氣體洩漏偵測 -->
+                <a href="../../modules/gas-detection/index.html" class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">
+                            <i class="fas fa-triangle-exclamation"></i>
+                        </div>
+                        <span class="module-badge">使用中</span>
+                    </div>
+                    <h3 class="module-title">氣體洩漏偵測</h3>
+                    <p class="module-description">
+                        即時氣體監測系統，支援多點感測器部署、異常警報通知與安全事件記錄，確保工作環境安全。
+                    </p>
+                </a>
+
+                <!-- 派工報工系統
+                <a href="../../modules/scheduling/#" class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <span class="module-badge">使用中</span>
+                    </div>
+                    <h3 class="module-title">派工報工系統</h3>
+                    <p class="module-description">
+                        派工報工管理工具，支援人員定位區域通行設定、人員調度與報工管理，提升工作效率。
+                    </p>
+                </a> -->
+
+                <!-- 人員定位系統
+                <a href="../../modules/positioning/#" class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <span class="module-badge">使用中</span>
+                    </div>
+                    <h3 class="module-title">人員定位系統</h3>
+                    <p class="module-description">
+                        即時人員定位追蹤系統，支援工地安全監控、人員動態管理與緊急狀況快速應變。
+                    </p>  
+                </a> -->
+            </div>
+
+            <!-- 系統管理 -->
+            <h2 class="section-title">
+                <i class="fas fa-cogs"></i>
+                系統管理
+            </h2>
+
+            <div class="modules-grid">
+                <!-- 員工管理 -->
+                <a href="../system-admin/user-management/index.html" class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">
+                            <i class="fas fa-users-cog"></i>
+                        </div>
+                        <span class="module-badge">使用中</span>
+                    </div>
+                    <h3 class="module-title">員工管理</h3>
+                    <p class="module-description">
+                        提供檢視公司ERP員工基本資料、部門與職位等資訊，定期同步排程更新。
+                    </p>
+                    <div class="module-stats">
+                        <div class="module-stat">
+                            <i class="fas fa-users"></i>
+                            <span>128 位在職員工</span>
+                        </div>
+                        <div class="module-stat">
+                            <i class="fas fa-user-plus"></i>
+                            <span>5 位新進員工</span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- 權限管理 -->
+                <a href="../system-admin/permission-management/index.html" class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">
+                            <i class="fas fa-shield-halved"></i>
+                        </div>
+                        <span class="module-badge">使用中</span>
+                    </div>
+                    <h3 class="module-title">權限管理</h3>
+                    <p class="module-description">
+                        角色權限配置與功能存取控制，支援功能級權限設定與權限使用記錄追蹤。
+                    </p>
+                    <div class="module-stats">
+                        <div class="module-stat">
+                            <i class="fas fa-user-tag"></i>
+                            <span>12 個角色</span>
+                        </div>
+                        <div class="module-stat">
+                            <i class="fas fa-clipboard-check"></i>
+                            <span>3 個待審核</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="../../assets/js/bootstrap.bundle.min.js"></script>
+    <!-- 路徑配置工具 -->
+    <script src="../../assets/js/path_config.js"></script>
+    <!-- 母版腳本 -->
+    <script src="../../assets/js/master_script.js"></script>
+    <!-- 側邊欄+頂部導航 JavaScript -->
+    <script src="../../assets/js/layout_loader.js"></script>
+    <script>
+        // 檢查登入狀態
+        window.addEventListener('DOMContentLoaded', function() {
+            const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+            if (!isLoggedIn) {
+                window.location.href = '../../login.html';
+            }
+        });
+    </script>
+</body>
+</html>

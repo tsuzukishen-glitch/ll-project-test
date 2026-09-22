@@ -1,0 +1,507 @@
+/* 檔案位置：core/system-admin/permission-management/permission.css */
+/* 良聯工程管理系統 - 權限管理專用樣式 V6.0 (Classic Card Style) */
+
+/* =========================================
+   1. 基礎佈局與容器
+   ========================================= */
+.permission-container {
+    padding: 1.5rem;
+}
+
+/* 表格容器卡片化 */
+.permission-table-container,
+.user-management-table {
+    background: white;
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-top: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.permission-table-container:hover,
+.user-management-table:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* =========================================
+   2. 頁籤導航 (Tabs)
+   ========================================= */
+.permission-tabs {
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: 2rem;
+    gap: 0.5rem;
+}
+
+.permission-tabs .nav-link {
+    color: var(--text-muted) !important;
+    border: none !important;
+    padding: 1rem 1.5rem;
+    font-weight: 500;
+    position: relative;
+    background: transparent !important;
+    transition: all 0.2s ease;
+    border-radius: 8px 8px 0 0;
+}
+
+.permission-tabs .nav-link:hover {
+    color: var(--primary-blue) !important;
+    background-color: rgba(30, 64, 175, 0.04) !important;
+}
+
+.permission-tabs .nav-link.active {
+    color: var(--primary-blue) !important;
+    font-weight: 600 !important;
+}
+
+.permission-tabs .nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--primary-blue);
+    border-radius: 3px 3px 0 0;
+}
+
+/* =========================================
+   3. 角色卡片 (Classic Home Style)
+   ========================================= */
+.role-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 頂部漸層條 (動態顏色由 JS 控制 opacity/color) */
+.role-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: currentColor; /* 使用卡片的 color 屬性 */
+    opacity: 0.8;
+    transform: scaleX(0); /* 預設隱藏，hover 時展開 */
+    transition: transform 0.3s ease;
+    transform-origin: left;
+}
+
+.role-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+}
+
+.role-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.role-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-right: 1rem;
+}
+
+.role-actions-top {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.role-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.role-sys-badge {
+    background: #fee2e2;
+    color: #dc2626;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    border: 1px solid #fca5a5;
+}
+
+.role-module-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    background: #f8fafc;
+    padding: 0.35rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.role-description {
+    color: #64748b;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    flex-grow: 1; /* 讓內容撐開，對齊底部 */
+}
+
+.role-footer {
+    padding-top: 1rem;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.role-stats-group {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.role-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.role-stat i {
+    color: var(--primary-blue); /* 這裡可以考慮跟隨角色色系 */
+}
+
+.role-btn-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* =========================================
+   4. 權限矩陣 & 圖例
+   ========================================= */
+.permission-legend {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    align-items: center;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.legend-badge {
+    font-size: 0.9rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 6px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.legend-badge.full { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+.legend-badge.edit { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+.legend-badge.view { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+.legend-badge.none { background: #ffffff; color: #94a3b8; border: 1px solid #e2e8f0; }
+
+.legend-desc { font-size: 0.9rem; color: var(--text-muted); }
+
+.permission-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.sticky-header th {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: #f8fafc;
+    padding: 1rem 1.5rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    border-bottom: 2px solid var(--border-color);
+}
+
+.matrix-control-bar {
+    background: #f8fafc;
+    padding: 1.5rem;
+    border-radius: 12px 12px 0 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.section-header-row td {
+    background: linear-gradient(135deg, var(--primary-blue), #1e3a8a) !important;
+    color: white !important;
+    padding: 0.85rem 1.5rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.module-header-row td {
+    background: #f8fafc !important;
+    color: var(--primary-blue) !important;
+    padding: 0.75rem 1.5rem 0.75rem 2.5rem;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+}
+
+.function-row td {
+    padding: 0.75rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+
+/* 權限設定 - 按鈕群組 */
+.perm-btn-group {
+    display: flex;
+    background: #f1f5f9;
+    padding: 6px;
+    border-radius: 8px;
+    width: fit-content;
+    gap: 10px;
+}
+
+.perm-btn {
+    border: none;
+    background: transparent;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    border-radius: 6px;
+    color: #64748b;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    text-align: center;
+    min-width: 60px;
+    border: 2px solid #f1f5f9
+}
+
+.perm-btn:hover { background: rgba(255,255,255,0.8); color: var(--text-muted); border: 2px solid #ffffff; }
+.perm-btn.active.full { background: #fffbeb; color: #b45309; border: 2px solid #fde68a; font-weight: 600; }
+.perm-btn.active.edit { background: #f0fdf4; color: #15803d; border: 2px solid #bbf7d0; font-weight: 600; }
+.perm-btn.active.view { background: #eff6ff; color: #1e40af; border: 2px solid #bfdbfe; font-weight: 600; }
+.perm-btn.active.none { background: #ffffff; color: #94a3b8; border: 2px solid #e2e8f0; font-weight: 600; }
+
+
+/* =========================================
+   5. 用戶管理
+   ========================================= */
+.search-filters-container {
+    background: #f8fafc;
+    padding: 1.5rem;
+    border-radius: 12px 12px 0 0; 
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.user-table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.user-table th {
+    background: var(--light-bg);
+    color: var(--text-muted);
+    font-weight: 600;
+    padding: 1rem 1.5rem;
+    border-bottom: 2px solid var(--border-color);
+    cursor: pointer;
+    user-select: none;
+    font-size: 0.85rem;
+}
+
+.user-table td {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+
+.user-name{
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.user-id-badge{
+    background: var(--primary-blue);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+/* =========================================
+   6. 共用元件
+   ========================================= */
+.sort-icon {
+    margin-left: 5px;
+    font-size: 0.8em;
+    color: #94a3b8;
+    display: inline-block;
+    width: 12px;
+}
+
+th.sort-asc .sort-icon::before { content: '\f0de'; color: var(--primary-blue); font-family: "Font Awesome 6 Free"; font-weight: 900; }
+th.sort-desc .sort-icon::before { content: '\f0dd'; color: var(--primary-blue); font-family: "Font Awesome 6 Free"; font-weight: 900; }
+th:not(.sort-asc):not(.sort-desc):not(.no-sort) .sort-icon::before { content: '\f0dc'; font-family: "Font Awesome 6 Free"; font-weight: 900; }
+
+.btn-icon {
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.btn-icon:hover { background: #f1f5f9; color: var(--primary-blue); }
+.btn-icon.text-danger:hover { background: #fee2e2; color: #dc2626; }
+
+/* =========================================
+   7. 使用者多角色指派元件
+   ========================================= */
+.role-select-trigger {
+    background: white;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 38px;
+    transition: all 0.2s;
+    width: 100%;
+    max-width: 260px;
+}
+
+.role-select-trigger:hover {
+    border-color: var(--primary-blue);
+    background-color: #f8fafc;
+}
+
+.role-select-trigger.active {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 2px rgba(30, 64, 175, 0.1);
+}
+
+.role-select-placeholder {
+    color: #94a3b8;
+    font-size: 0.85rem;
+}
+
+.role-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.role-tag {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.role-portal-dropdown {
+    position: fixed;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    z-index: 9999;
+    min-width: 220px;
+    padding: 0.5rem 0;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.role-portal-dropdown-header {
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    border-bottom: 1px solid #f1f5f9;
+    margin-bottom: 0.25rem;
+}
+
+.role-select-option {
+    padding: 0.6rem 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: background 0.2s;
+}
+
+.role-select-option:hover {
+    background-color: #f1f5f9;
+}
+
+.role-select-option input[type="checkbox"] {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+    accent-color: var(--primary-blue);
+}
+
+.role-select-option label {
+    cursor: pointer;
+    font-size: 0.9rem;
+    flex: 1;
+    margin: 0;
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.role-select-option .role-color-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+    .perm-btn-group { width: 100%; }
+    .perm-btn { flex: 1; }
+    .permission-legend { gap: 1rem; flex-direction: column; align-items: flex-start; }
+    .permission-table-container, .user-management-table { overflow-x: auto; }
+}
