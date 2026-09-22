@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>良聯｜成本估算</title>
+    <script>
+        window.ASSETS_PATH = '../../../'; 
+        window.SIDEBAR_TYPE = 'project';  
+        
+        window.BREADCRUMBS = [
+            { name: '報價估算系統', link: '' },
+            { name: '專案列表', link: '../project-list/index.html' },
+            { name: '專案儀表板', link: '../project-dashboard/index.html' },
+            { name: '成本估算', link: '' }
+        ];
+    </script>
+    <link rel="shortcut icon" href="../../../assets/images/favicons/favicon.ico" type="image/x-icon">
+    <!-- 引用本地 Bootstrap CSS -->
+    <link href="../../../assets/css/bootstrap.min.css" rel="stylesheet">
+    <!-- 引用本地 Font Awesome CSS -->
+    <link href="../../../assets/css/all.min.css" rel="stylesheet">
+    <!-- 母版樣式 -->
+    <link href="../../../assets/css/master_style.css" rel="stylesheet">
+    <!-- 成本估算樣式 -->
+    <link href="estimation.css" rel="stylesheet">
+</head>
+<body>
+    <div id="sidebar-placeholder"></div>
+
+    <div class="main-content" id="mainContent">
+        <div id="header-placeholder"></div>
+
+        <div class="container-fluid" style="padding: 2rem;">
+            
+            <!-- 1. 專案標題區域 -->
+            <div class="project-header">
+                <!-- 狀態標籤 -->
+                <div class="project-status" id="headerStatus">載入中...</div>
+                
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    <h1 class="project-title mb-0" id="headerTitle">載入中...</h1>
+                </div>
+                
+                <div class="project-meta">
+                    <div class="meta-item">
+                        <div class="meta-icon"><i class="fas fa-file-invoice"></i></div>
+                        <div>
+                            <small style="opacity: 0.6;">報價編號</small>
+                            <div class="fw-bold" id="headerQuotationId">-</div>
+                        </div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-icon"><i class="fas fa-hashtag"></i></div>
+                        <div>
+                            <small style="opacity: 0.6;">專案編號</small>
+                            <div class="fw-bold" id="headerProjectId">-</div>
+                        </div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-icon"><i class="fas fa-user-tie"></i></div>
+                        <div>
+                            <small style="opacity: 0.6;">業主名稱</small>
+                            <div class="fw-bold" id="headerOwner">-</div>
+                        </div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-icon"><i class="fas fa-building"></i></div>
+                        <div>
+                            <small style="opacity: 0.6;">客戶名稱</small>
+                            <div class="fw-bold" id="headerCustomer">-</div>
+                        </div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-icon"><i class="fas fa-calendar"></i></div>
+                        <div>
+                            <small style="opacity: 0.6;">投標日期</small>
+                            <div class="fw-bold" id="headerBidDate">-</div>
+                        </div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-icon"><i class="fas fa-sack-dollar"></i></div>
+                        <div>
+                            <small style="opacity: 0.6;">成本估算總價</small>
+                            <div class="fw-bold text-warning" id="headerTotalCost" style="font-size: 1.2rem;">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. 操作工具列 -->
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
+                
+                <div class="d-flex align-items-center gap-3">
+                    <h5 class="mb-0 text-primary fw-bold">
+                        <i class="fas fa-layer-group me-2"></i>成本估算列表
+                    </h5>
+                    <!-- 批次操作區塊：當有勾選時才會顯示，距離勾選框更近 -->
+                    <div id="batchActionArea" class="d-flex align-items-center gap-2" style="opacity: 0; pointer-events: none; transition: opacity 0.3s;">
+                        <span class="badge bg-secondary" id="selectedCountBadge">已選 0 項</span>
+                        <button class="btn btn-primary" onclick="openChangeAssigneeModal()">
+                            <i class="fas fa-user-edit me-1"></i>批次變更人員
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-outline-secondary" onclick="openModeSettings()" id="modeSettingBtn" title="設定估算模式">
+                        <i class="fas fa-cog me-2"></i>估算模式：<span id="currentModeLabel">未設定</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 3. 估算項目列表 (Table 呈現) -->
+            <div class="content-card">
+                <div class="card-body p-0">
+                    <!-- 移除 max-height 以及 overflow-y，讓頁面的 scrollbar 來主導 -->
+                    <div class="table-responsive">
+                        <table class="table estimation-table table-hover mb-0">
+                            <thead class="table-light sticky-top" style="z-index: 2;">
+                                <tr>
+                                    <th style="width: 40px; text-align: center;">
+                                        <input type="checkbox" class="form-check-input" id="selectAllBtn" onchange="toggleSelectAll(this)">
+                                    </th>
+                                    <th style="width: 60px; text-align: center;">項次</th>
+                                    <th style="min-width: 250px;">估算項目名稱</th>
+                                    <th style="width: 140px;">設備編號</th>
+                                    <th style="width: 140px;">設備名稱</th>
+                                    <th style="width: 100px; text-align: center;">執行單位</th>
+                                    <th style="width: 140px;">估算人員</th>
+                                    <th style="width: 120px;">應完成日</th>
+                                    <th style="width: 100px; text-align: center;">狀態</th>
+                                </tr>
+                            </thead>
+                            <tbody id="estimationTableBody">
+                                <tr>
+                                    <td colspan="10" class="text-center py-5 text-muted">
+                                        <i class="fas fa-spinner fa-spin me-2"></i>載入標單資料中...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 變更估算人員 Modal -->
+    <div class="modal fade" id="changeAssigneeModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-user-edit me-2"></i>變更估算人員</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info py-2 mb-3">
+                        <i class="fas fa-info-circle me-2"></i><span id="selectedItemsCount">已選擇 0 個項目</span>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">指派新的估算人員</label>
+                        <select class="form-select" id="newAssigneeSelect">
+                            <!-- 由 JS 動態載入人員選單 -->
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="confirmChangeAssignee()">確認變更</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 估算模式設定 Modal -->
+    <div class="modal fade" id="modeSettingModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-tasks me-2"></i>設定專案估算模式</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted ps-2 mb-4">
+                        為確保報價資料彙整格式統一，請先選擇此專案的估算方式。<br>
+                        <span class="text-danger"><i class="fas fa-exclamation-circle me-1"></i>注意：選定後若需變更，系統將會重置所有已輸入的資料。</span>
+                    </p>
+                    <div class="row g-3">
+                        <!-- 選項 1: 直式估算 -->
+                        <div class="col-md-6">
+                            <label class="mode-selection-card h-100 p-4 d-flex flex-column" data-mode="standard" onclick="selectCard(this)">
+                                <input type="radio" name="estimationMode" value="standard" class="btn-check" autocomplete="off">
+                                <div class="check-indicator"><i class="fas fa-check"></i></div>
+                                
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="mode-icon-wrapper bg-primary bg-opacity-10 text-primary">
+                                        <i class="fas fa-list-ul fa-2x"></i>
+                                    </div>
+                                    <h5 class="fw-bold mb-0 text-dark">直式估算模式<br><span class="text-muted small fw-normal">Standard Mode</span></h5>
+                                </div>
+                                <div class="text-secondary small lh-base mt-2">
+                                    傳統列表式輸入，適用於標準化或項目較單純的估算。各項目獨立列出並可分類檢視，適合快速報價作業。
+                                </div>
+                            </label>
+                        </div>
+                        <!-- 選項 2: 橫式估算 -->
+                        <div class="col-md-6">
+                            <label class="mode-selection-card h-100 p-4 d-flex flex-column" data-mode="matrix" onclick="selectCard(this)">
+                                <input type="radio" name="estimationMode" value="matrix" class="btn-check" autocomplete="off">
+                                <div class="check-indicator"><i class="fas fa-check"></i></div>
+                                
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="mode-icon-wrapper bg-success bg-opacity-10 text-success">
+                                        <i class="fas fa-th fa-2x"></i>
+                                    </div>
+                                    <h5 class="fw-bold mb-0 text-dark">橫式估算模式<br><span class="text-muted small fw-normal">Matrix Mode</span></h5>
+                                </div>
+                                <div class="text-secondary small lh-base mt-2">
+                                    材料與製程交叉對應，適用於複雜製造或需詳細分析資源的專案。所有材料與工法形成橫式矩陣表。
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" id="modeModalCancelBtn">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="confirmProjectMode()"><i class="fas fa-check me-2"></i>確認設定
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="../../../assets/js/bootstrap.bundle.min.js"></script>
+    <script src="../../../assets/js/path_config.js"></script>
+    <script src="../../../assets/js/master_script.js"></script>
+    <script src="../../../assets/js/layout_loader.js"></script>
+    <!-- 成本估算 JavaScript -->
+    <script src="estimation.js"></script>
+    <script>
+        function selectCard(element) {
+            document.querySelectorAll('.mode-selection-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            const radio = element.querySelector('input[type="radio"]');
+            if(radio) radio.checked = true;
+        }
+    </script>
+</body>
+</html>

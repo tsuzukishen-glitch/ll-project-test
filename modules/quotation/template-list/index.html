@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <script>
+        window.ASSETS_PATH = '../../../';
+        window.SIDEBAR_TYPE = 'quotation-entry';
+
+        window.BREADCRUMBS = [
+            { name: '報價估算系統', link: '' },
+            { name: '範本管理', link: '' }
+        ];
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>良聯｜範本管理</title>
+    <link rel="shortcut icon" href="../../../assets/images/favicons/favicon.ico" type="image/x-icon">
+    <link href="../../../assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../../assets/css/all.min.css" rel="stylesheet">
+    <link href="../../../assets/css/master_style.css" rel="stylesheet">
+    <link href="list.css" rel="stylesheet">
+</head>
+<body>
+    <div id="sidebar-placeholder"></div>
+
+    <div class="main-content" id="mainContent">
+        <div id="header-placeholder"></div>
+
+        <div class="container-fluid" style="padding: 2rem;">
+
+            <!-- 頁面標題 -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="fw-bold mb-2">範本管理</h3>
+                    <p class="text-muted mb-0">建立與管理估算範本，供邀標單套用引用</p>
+                </div>
+                <a href="../template-editor/index.html" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>新增範本
+                </a>
+            </div>
+
+            <div class="template-table-container">
+
+                <!-- 搜尋與篩選 -->
+                <div class="search-filters template-search-filters">
+                    <div>
+                        <label class="form-label">關鍵字搜尋</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted"><i class="fas fa-search"></i></span>
+                            <input type="text" class="form-control" id="searchKeyword" placeholder="範本名稱或料號關鍵字...">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">範本類型</label>
+                        <select class="form-select" id="filterType">
+                            <option value="">全部類型</option>
+                            <option value="equipment">設備範本</option>
+                            <option value="engineering">工程範本</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">分類代碼</label>
+                        <select class="form-select" id="filterProductCode">
+                            <option value="">全部代碼</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">狀態</label>
+                        <select class="form-select" id="filterStatus">
+                            <option value="">全部狀態</option>
+                            <option value="active">啟用</option>
+                            <option value="inactive">停用</option>
+                        </select>
+                    </div>
+                    <div class="d-flex align-items-end">
+                        <button type="button" class="btn btn-outline-secondary w-100" id="clearFilterBtn">
+                            <i class="fas fa-times me-2"></i>清空條件
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table template-table">
+                        <thead>
+                            <tr>
+                                <th class="sortable" onclick="TemplateList.sortData('name')">
+                                    範本名稱 <i class="fas fa-sort" id="icon-name"></i>
+                                </th>
+                                <th class="sortable" onclick="TemplateList.sortData('templateType')">
+                                    類型 <i class="fas fa-sort" id="icon-templateType"></i>
+                                </th>
+                                <th class="sortable" onclick="TemplateList.sortData('productCode')">
+                                    分類代碼 <i class="fas fa-sort" id="icon-productCode"></i>
+                                </th>
+                                <th class="sortable text-center" onclick="TemplateList.sortData('itemCount')">
+                                    項目數 <i class="fas fa-sort" id="icon-itemCount"></i>
+                                </th>
+                                <th class="sortable" onclick="TemplateList.sortData('createdBy')">
+                                    建立人 <i class="fas fa-sort" id="icon-createdBy"></i>
+                                </th>
+                                <th class="sortable" onclick="TemplateList.sortData('updatedAt')">
+                                    最後更新 <i class="fas fa-sort" id="icon-updatedAt"></i>
+                                </th>
+                                <th class="sortable text-center" onclick="TemplateList.sortData('isActive')">
+                                    狀態 <i class="fas fa-sort" id="icon-isActive"></i>
+                                </th>
+                                <th style="width: 160px;" class="text-center">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="templateTableBody"></tbody>
+                    </table>
+                </div>
+
+                <div id="noDataMessage" class="text-center py-5" style="display: none;">
+                    <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">沒有找到符合條件的範本</h5>
+                    <p class="text-muted small">請嘗試調整搜尋條件，或建立一個新範本</p>
+                </div>
+
+                <div class="pagination-section" id="paginationSection">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        <div class="d-flex align-items-center">
+                            <span class="text-muted me-3">每頁顯示</span>
+                            <select class="form-select form-select-sm me-3" style="width: auto;" id="pageSizeSelect" onchange="TemplateList.changePageSize(this.value)">
+                                <option value="5">5</option>
+                                <option value="10" selected>10</option>
+                                <option value="25">25</option>
+                            </select>
+                            <span class="text-muted">筆，共 <span id="totalRecords">0</span> 筆</span>
+                        </div>
+                        <nav>
+                            <ul class="pagination pagination-sm mb-0" id="pagination"></ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../../assets/js/bootstrap.bundle.min.js"></script>
+    <script src="../../../assets/js/path_config.js"></script>
+    <script src="../../../assets/js/master_script.js"></script>
+    <script src="../../../assets/js/layout_loader.js"></script>
+    <script src="list.js"></script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        window.ASSETS_PATH = '../../../';
+        window.SIDEBAR_TYPE = 'project';
+        window.BREADCRUMBS = [
+            { name: '報價估算系統', link: '../project-list/index.html' },
+            { name: '專案儀表板', link: '../project-dashboard/index.html' },
+            { name: '成本估算', link: '../cost-estimation/index.html' },
+            { name: '詳細估算', link: '../cost-detail/index.html' },
+            { name: '版本歷史紀錄', link: '' }
+        ];
+    </script>
+
+    <title>良聯｜成本估算版本紀錄</title>
+    <link rel="shortcut icon" href="../../../assets/images/favicons/favicon.ico" type="image/x-icon">
+    <link href="../../../assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../../assets/css/all.min.css" rel="stylesheet">
+    <link href="../../../assets/css/master_style.css" rel="stylesheet">
+    <link href="history.css" rel="stylesheet">
+</head>
+<body>
+    <div class="version-history-layout">
+        <!-- 左側：估算表檢視 -->
+        <div class="estimation-panel">
+            <div class="estimation-header">
+                <a href="#" class="back-btn" id="backToWorkspace">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>返回工作台</span>
+                </a>
+                <div class="text-center">
+                    <h6 class="mb-0 fw-bold text-primary" id="selectedVersionInfo">載入中...</h6>
+                </div>
+                <button class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-download me-1"></i>匯出
+                </button>
+            </div>
+            
+            <div class="estimation-content" id="estimationContent">
+                <!-- 內容由 JS 動態生成 -->
+            </div>
+        </div>
+
+        <!-- 右側：版本列表 -->
+        <div class="version-panel">
+            <div class="version-header">
+                <h6 class="mb-0"><i class="fas fa-history me-2"></i>版本歷史</h6>
+            </div>
+            
+            <div class="version-list">
+                <!-- V3.0 (一般模式) -->
+                <div class="version-item" onclick="selectVersion(this, 'V3.0')" data-version="V3.0">
+                    <div class="version-number">V3.0 <span class="badge bg-primary ms-auto">當前</span></div>
+                    <div class="version-meta">09-22 14:30 | 張工程師</div>
+                </div>
+
+                <!-- V2.0 (一般模式) -->
+                <div class="version-item" onclick="selectVersion(this, 'V2.0')" data-version="V2.0">
+                    <div class="version-number">V2.0 <span class="badge bg-warning text-dark ms-auto">修訂</span></div>
+                    <div class="version-meta">09-18 16:45 | 陳主管</div>
+                </div>
+
+                <!-- V1.0 (草稿) -->
+                <div class="version-item" onclick="selectVersion(this, 'V1.0')" data-version="V1.0">
+                    <div class="version-number">V1.0 <span class="badge bg-secondary ms-auto">草稿</span></div>
+                    <div class="version-meta">09-10 09:00 | 張工程師</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../../assets/js/bootstrap.bundle.min.js"></script>
+    <script src="history.js"></script>
+</body>
+</html>

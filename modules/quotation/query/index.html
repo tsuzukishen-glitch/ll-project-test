@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <script>
+        window.ASSETS_PATH = '../../../';
+        window.SIDEBAR_TYPE = 'quotation-entry';
+
+        window.BREADCRUMBS = [
+            { name: '報價估算系統', link: '' }, // 分類
+            { name: '查詢中心', link: '' }
+        ];
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>良聯｜查詢中心</title>
+    <link rel="shortcut icon" href="../../../assets/images/favicons/favicon.ico" type="image/x-icon">
+    <!-- 引用本地 Bootstrap CSS -->
+    <link href="../../../assets/css/bootstrap.min.css" rel="stylesheet">
+    <!-- 引用本地 Font Awesome CSS -->
+    <link href="../../../assets/css/all.min.css" rel="stylesheet">
+    <!-- 引用本地 Flatpickr CSS -->
+    <link href="../../../assets/css/flatpickr.min.css" rel="stylesheet">
+    <!-- 母版樣式 -->
+    <link href="../../../assets/css/master_style.css" rel="stylesheet">
+    <!-- 查詢中心樣式 -->
+    <link href="query.css" rel="stylesheet">
+</head>
+<body>
+    <!-- 側邊欄 -->
+    <div id="sidebar-placeholder"></div>
+
+    <!-- 主內容區 -->
+    <div class="main-content" id="mainContent">
+        <!-- 頂部導航 -->
+        <div id="header-placeholder"></div>
+
+        <!-- 主要內容 -->
+        <div class="container-fluid" style="padding: 2rem;">
+
+            <!-- 頁面標題（比照其他模組頁面） -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="fw-bold mb-2">查詢中心</h3>
+                    <p class="text-muted mb-0">依料號、業主、廠商查詢各專案的歷史成本與報價單價</p>
+                </div>
+            </div>
+
+            <!-- 搜尋卡片 -->
+            <div class="qc-search-card">
+                <div class="qc-search-box">
+                    <div class="qc-search-input-wrap">
+                        <i class="fas fa-search qc-search-box-icon"></i>
+                        <input type="text" id="searchKeyword" placeholder="輸入料號、品名或規格關鍵字，例如：鋼板、SS400..." autocomplete="off">
+                    </div>
+                    <button type="button" class="qc-search-submit" id="searchBtn">查詢</button>
+                </div>
+
+                <button type="button" class="qc-advanced-toggle" id="advancedToggle">
+                    <i class="fas fa-filter"></i>
+                    <span>進階篩選條件（業主、客戶、廠商、類別、日期）</span>
+                    <i class="fas fa-chevron-up qc-chevron" id="advancedChevron"></i>
+                </button>
+
+                <div class="qc-advanced-grid open" id="advancedGrid">
+                    <div>
+                        <label class="form-label">業主</label>
+                        <select class="form-select" id="filterOwner">
+                            <option value="">全部業主</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">客戶</label>
+                        <select class="form-select" id="filterCustomer">
+                            <option value="">全部客戶</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">廠商</label>
+                        <select class="form-select" id="filterVendor">
+                            <option value="">全部廠商</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">類別</label>
+                        <select class="form-select" id="filterCategory">
+                            <option value="">全部類別</option>
+                        </select>
+                    </div>
+
+                    <div class="qc-date-range">
+                        <label class="form-label">日期區間</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control flatpickr-date" id="startDate" placeholder="開始日期" readonly>
+                            <span class="input-group-text bg-light text-muted" style="border-left: 0; border-right: 0;">至</span>
+                            <input type="text" class="form-control flatpickr-date" id="endDate" placeholder="結束日期" readonly>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-end">
+                        <button type="button" class="btn btn-outline-secondary w-100" id="clearFilterBtn">
+                            <i class="fas fa-times me-2"></i>清空條件
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 查詢結果：查詢前完全不顯示 -->
+            <div class="qc-results" id="qcResults">
+                <div class="qc-results-header">
+                    <div class="qc-results-count">
+                        找到 <strong id="totalRecords">0</strong> 筆歷史價格紀錄
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-outline-secondary" id="newSearchBtn">
+                            <i class="fas fa-rotate-left me-1"></i>重新查詢
+                        </button>
+                        <button class="btn btn-sm btn-success" onclick="PriceHistoryQuery.exportResults()">
+                            <i class="fas fa-download me-1"></i>匯出結果
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table project-table query-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 130px;" class="sortable" onclick="PriceHistoryQuery.sortData('matNo')">
+                                    料號 <i class="fas fa-sort" id="icon-matNo"></i>
+                                </th>
+                                <th style="width: 180px;" class="sortable" onclick="PriceHistoryQuery.sortData('name')">
+                                    品名 / 規格 <i class="fas fa-sort" id="icon-name"></i>
+                                </th>
+                                <th style="width: 110px;" class="sortable" onclick="PriceHistoryQuery.sortData('category')">
+                                    類別 <i class="fas fa-sort" id="icon-category"></i>
+                                </th>
+                                <th style="width: 130px;" class="sortable" onclick="PriceHistoryQuery.sortData('owner')">
+                                    業主 <i class="fas fa-sort" id="icon-owner"></i>
+                                </th>
+                                <th style="width: 130px;" class="sortable" onclick="PriceHistoryQuery.sortData('customer')">
+                                    客戶 <i class="fas fa-sort" id="icon-customer"></i>
+                                </th>
+                                <th style="width: 110px;" class="sortable" onclick="PriceHistoryQuery.sortData('vendorName')">
+                                    廠商 <i class="fas fa-sort" id="icon-vendorName"></i>
+                                </th>
+                                <th style="width: 200px;">來源專案</th>
+                                <th style="width: 110px;" class="sortable text-end" onclick="PriceHistoryQuery.sortData('costPrice')">
+                                    成本單價 <i class="fas fa-sort" id="icon-costPrice"></i>
+                                </th>
+                                <th style="width: 110px;" class="sortable text-end" onclick="PriceHistoryQuery.sortData('quotePrice')">
+                                    報價單價 <i class="fas fa-sort" id="icon-quotePrice"></i>
+                                </th>
+                                <th style="width: 110px;" class="sortable text-center" onclick="PriceHistoryQuery.sortData('date')">
+                                    日期 <i class="fas fa-sort" id="icon-date"></i>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="queryResultBody"></tbody>
+                    </table>
+                </div>
+
+                <!-- 查詢中（資料量大，改為伺服器端查詢，需要顯示等待狀態） -->
+                <div id="loadingMessage" class="text-center py-5" style="display: none;">
+                    <div class="spinner-border text-primary mb-3" role="status"></div>
+                    <p class="text-muted mb-0">查詢中，資料量較大請稍候...</p>
+                </div>
+
+                <!-- 查無資料 -->
+                <div id="noDataMessage" class="text-center py-5" style="display: none;">
+                    <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">沒有找到符合條件的歷史價格紀錄</h5>
+                    <p class="text-muted small">請嘗試調整搜尋條件或清空篩選</p>
+                </div>
+
+                <!-- 分頁 -->
+                <div class="pagination-section" id="paginationSection">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        <div class="d-flex align-items-center">
+                            <span class="text-muted me-3">每頁顯示</span>
+                            <select class="form-select form-select-sm me-3" style="width: auto;" id="pageSizeSelect" onchange="PriceHistoryQuery.changePageSize(this.value)">
+                                <option value="5">5</option>
+                                <option value="10" selected>10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                            </select>
+                            <span class="text-muted">筆，共 <span id="totalRecordsFooter">0</span> 筆</span>
+                        </div>
+                        <nav>
+                            <ul class="pagination pagination-sm mb-0" id="pagination"></ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="../../../assets/js/bootstrap.bundle.min.js"></script>
+    <!-- Flatpickr JS -->
+    <script src="../../../assets/js/flatpickr.min.js"></script>
+    <script src="../../../assets/js/zh-tw.min.js"></script>
+    <!-- 路徑配置工具 -->
+    <script src="../../../assets/js/path_config.js"></script>
+    <!-- 母版腳本 -->
+    <script src="../../../assets/js/master_script.js"></script>
+    <!-- 側邊欄+頂部導航 JavaScript -->
+    <script src="../../../assets/js/layout_loader.js"></script>
+    <!-- 查詢中心 JavaScript -->
+    <script src="query.js"></script>
+</body>
+</html>

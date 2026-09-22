@@ -1,0 +1,209 @@
+/* 檔案位置：modules/quotation/template-list/template-list.css */
+/* 良聯工程管理系統 - 範本管理列表樣式 V1.0（比照查詢中心/專案列表） */
+
+.template-table-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+/* =========================================
+   搜尋與篩選列
+   ========================================= */
+.template-search-filters {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr 1fr 1fr 1fr;
+    gap: 1rem;
+    align-items: end;
+    background: #f8fafc;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color, #e2e8f0);
+}
+
+@media (max-width: 768px) {
+    .template-search-filters {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =========================================
+   結果表格
+   ========================================= */
+.template-table {
+    width: 100%;
+    margin-bottom: 0;
+}
+
+.template-table th {
+    background: var(--light-bg, #f8fafc);
+    color: var(--text-muted, #64748b);
+    font-weight: 600;
+    padding: 1rem 1.25rem;
+    border-bottom: 2px solid var(--border-color, #e2e8f0);
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+.template-table th.sortable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.template-table th.sortable:hover {
+    color: var(--primary-blue, #1e40af);
+}
+
+.template-table th.active-sort {
+    color: var(--primary-blue, #1e40af);
+}
+
+.template-table th .fa-sort,
+.template-table th .fa-sort-up,
+.template-table th .fa-sort-down {
+    margin-left: 4px;
+    font-size: 0.8em;
+    color: #cbd5e1;
+}
+
+.template-table th.active-sort i {
+    color: var(--primary-blue, #1e40af);
+}
+
+.template-table td {
+    padding: 0.9rem 1.25rem;
+    border-bottom: 1px solid var(--border-color, #e2e8f0);
+    vertical-align: middle;
+    font-size: 0.92rem;
+}
+
+.template-table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+.template-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.category-tag {
+    display: inline-block;
+    background: #f1f5f9;
+    color: #475569;
+    padding: 0.25rem 0.65rem;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    border: 1px solid #e2e8f0;
+    white-space: nowrap;
+}
+
+/* 範本類型標籤：設備範本／工程範本，比照業主固定分類標準用不同色系區隔 */
+.type-tag {
+    display: inline-block;
+    padding: 0.25rem 0.65rem;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.type-tag.type-equipment {
+    background: #eff6ff;
+    color: #1e40af;
+    border: 1px solid #bfdbfe;
+}
+.type-tag.type-engineering {
+    background: #f0fdf4;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+}
+
+/* =========================================
+   分頁區（比照查詢中心/專案列表）
+   ========================================= */
+.pagination-section {
+    padding: 1.25rem 1.5rem;
+    border-top: 1px solid var(--border-color, #e2e8f0);
+}
+
+.pagination-section .pagination {
+    gap: 6px;
+}
+
+.pagination-section .page-link {
+    border: 1px solid var(--border-color, #e2e8f0);
+    background: white;
+    color: var(--text-muted, #64748b);
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 0.88rem;
+    line-height: 1.2;
+}
+
+.pagination-section .page-link:hover {
+    background: #eff6ff;
+    border-color: var(--primary-blue, #1e40af);
+    color: var(--primary-blue, #1e40af);
+}
+
+.pagination-section .page-item.active .page-link {
+    background: var(--primary-blue, #1e40af);
+    border-color: var(--primary-blue, #1e40af);
+    color: white;
+    box-shadow: none;
+}
+
+.pagination-section .page-item.disabled .page-link {
+    color: #cbd5e1;
+    background: #f8fafc;
+    border-color: var(--border-color, #e2e8f0);
+    pointer-events: none;
+}
+
+/* =========================================
+   啟用/停用開關：Bootstrap 預設太小，放大到跟操作區的 btn-sm 圖示按鈕視覺份量一致
+   ★ master_style.css 裡有規則把 checkbox 重設成方形，優先權蓋過 Bootstrap 原本
+   的 .form-switch 圓角樣式，導致開關變成方塊。這裡把該有的圓角滑塊外觀重新宣告
+   一次（含 !important）繞開那條規則，不去動 master_style.css 本身。
+   ========================================= */
+.template-table .form-switch .form-check-input {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    width: 2.75rem !important;
+    height: 1.4rem !important;
+    border: 1px solid rgba(0, 0, 0, 0.15) !important;
+    border-radius: 2em !important;
+    background-color: #cbd5e1 !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23ffffff'/%3e%3c/svg%3e") !important;
+    background-repeat: no-repeat !important;
+    background-position: left center !important;
+    background-size: contain !important;
+    cursor: pointer;
+    margin: 0;
+    transition: background-position .15s ease-in-out, background-color .15s ease-in-out;
+}
+
+.template-table .form-switch .form-check-input:checked {
+    background-color: var(--primary-blue, #1e40af) !important;
+    border-color: var(--primary-blue, #1e40af) !important;
+    background-position: right center !important;
+}
+
+.template-table .form-switch .form-check-input:focus {
+    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15) !important;
+}
+
+.template-table .form-switch {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-left: 0;
+    min-height: 31px; /* 對齊操作欄 btn-sm 的高度 */
+}
+
+.template-table .form-switch .form-check-label {
+    padding-left: 0;
+    margin-bottom: 0;
+    cursor: pointer;
+    font-weight: 600;
+}

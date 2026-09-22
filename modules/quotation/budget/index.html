@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        // 設定全域變數，配合 layout_loader.js
+        window.ASSETS_PATH = '../../../';
+        window.SIDEBAR_TYPE = 'project';
+        window.BREADCRUMBS = [
+            { name: '報價估算系統', link: '#' },
+            { name: '專案儀表板', link: '../project-dashboard/index.html' },    
+            { name: '專案預算管理', link: '' }
+        ];
+    </script>
+
+    <title>良聯｜專案預算管理</title>
+    <link rel="shortcut icon" href="../../../assets/images/favicons/favicon.ico" type="image/x-icon">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="../../../assets/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="../../../assets/css/all.min.css" rel="stylesheet">
+    <!-- 母版樣式 -->
+    <link href="../../../assets/css/master_style.css" rel="stylesheet">
+    <link href="../../../modules/quotation/cost-detail/detail.css" rel="stylesheet">
+    <link href="budget.css" rel="stylesheet">
+</head>
+<body>
+    <div id="sidebar-placeholder"></div>
+
+    <main class="main-content">
+        <!-- 1. Header -->
+        <header class="estimation-header">
+            <div class="estimation-header-content">
+                <div class="estimation-info">
+                    <a href="../project-dashboard/index.html" class="back-btn">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>返回儀表板</span>
+                    </a>
+                    <div>
+                        <h1 class="product-title" id="pageTitle">專案預算管理</h1>
+                    </div>
+                </div>
+                <div class="estimation-actions">
+                    <button class="header-btn" onclick="App.exportBudgetTable()"><i class="fas fa-file-excel"></i><span>匯出預算執行表</span></button>
+                    <button class="header-btn primary" id="btnLock" onclick="App.lockBaseline()"><i class="fas fa-check-double"></i><span>完成預算定案</span></button>
+                </div>
+            </div>
+        </header>
+
+        <div class="estimation-content">
+
+            <!-- 2. 全案總計儀表板 -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h6 class="section-title"><i class="fas fa-info-circle"></i>專案基礎資訊總覽</h6>
+                    <span class="text-muted small">單位：新台幣 (NTD)</span>
+                </div>
+                <div class="dashboard-body">
+                    <!-- 基本資訊列 -->
+                    <div class="row g-3 align-items-stretch mb-3">
+                        <div class="col-lg-3 col-md-3">
+                            <div class="info-field">
+                                <label class="info-label">專案編號</label>
+                                <input type="text" class="info-input" id="projectIdField" value="PRJ-2026-0088" readonly>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-3">
+                            <div class="info-field">
+                                <label class="info-label">工程名稱</label>
+                                <input type="text" class="info-input" id="projectNameField" value="台積電 P3 廠廢氣處理設備新建工程" readonly>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-3">
+                            <div class="info-field">
+                                <label class="info-label">業主名稱</label>
+                                <input type="text" class="info-input" id="clientNameField" value="台灣積體電路" readonly>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-3">
+                            <div class="info-field">
+                                <label class="info-label">訂製數量</label>
+                                <input type="text" class="info-input text-dark" value="1 套" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 核心財務指標列 (依據修正要求排版) -->
+                    <div class="row g-3 align-items-stretch">
+                        <div class="col-lg col-md-4">
+                            <div class="amount-box" style="border-left-color: #64748b; background: linear-gradient(to right, #f1f5f9, #ffffff);">
+                                <label class="amount-label text-secondary">合約總額 (A)</label>
+                                <div class="amount-value text-secondary text-end mt-auto fs-4" id="dashContractAmt">6,200,000</div>
+                            </div>
+                        </div>
+                        <div class="col-lg col-md-4">
+                            <div class="amount-box" style="border-left-color: #3b82f6; background: linear-gradient(to right, #eff6ff, #ffffff);">
+                                <label class="amount-label text-primary">預算總額 (B)</label>
+                                <div class="amount-value text-primary text-end mt-auto fs-4" id="dashTotalBudget">0</div>
+                            </div>
+                        </div>
+                        <div class="col-lg col-md-4">
+                            <div class="amount-box" style="border-left-color: #10b981; background: linear-gradient(to right, #ecfdf5, #ffffff);">
+                                <label class="amount-label text-success" title="合約(A) - 預算(B)">毛利 (C = A - B)</label>
+                                <div class="amount-value text-success text-end mt-auto fs-4" id="dashGrossProfit">0</div>
+                            </div>
+                        </div>
+                        <div class="col-lg col-md-4">
+                            <div class="amount-box" style="border-left-color: #f59e0b; background: linear-gradient(to right, #fffbeb, #ffffff);">
+                                <label class="amount-label text-warning" title="毛利(C) / 合約(A)">毛利率 % (D = C / A)</label>
+                                <div class="amount-value text-warning text-end mt-auto fs-4" id="dashGrossMargin">0.00 %</div>
+                            </div>
+                        </div>
+                        <div class="col-lg col-md-4">
+                            <div class="amount-box" style="border-left-color: #8b5cf6; background: linear-gradient(to right, #f5f3ff, #ffffff);">
+                                <label class="amount-label" style="color: #8b5cf6;">實際總額</label>
+                                <div class="amount-value text-end mt-auto fs-4" style="color: #8b5cf6;" id="dashActualCost">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+           <!-- 3. 頁籤與內容區 -->
+            <div class="mt-4">
+                <!-- 動態生成頁籤 -->
+                <ul class="nav nav-tabs ll-tabs nav-fill" id="budgetTabs" role="tablist"></ul>
+                
+                <div class="tab-pane-container">
+                    <!-- 動態生成表格內容 -->
+                    <div class="tab-content" id="budgetTabContent"></div>
+                </div>
+            </div>
+
+            <!-- 4. 專案備註 -->
+            <div class="content-section mt-4 mb-5">
+                <div class="section-header">
+                    <h6 class="section-title"><i class="fas fa-edit me-2"></i>專案備註</h6>
+                </div>
+                <div class="section-content">
+                    <textarea class="form-control" rows="4" placeholder="請輸入發包預算相關備註事項..."></textarea>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- 多家廠商詢價詳情 Modal -->
+    <div class="modal fade" id="quotesModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content" style="max-height: 80vh;">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title fw-bold text-primary fs-6">
+                        <i class="fas fa-list-check me-2"></i>廠商預詢與報價詳情
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-3">
+                    <div class="alert alert-info py-2 px-3 mb-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <div class="d-flex align-items-center gap-3">
+                            <div>
+                                <span class="fw-bold small me-1"><i class="fas fa-cube me-1"></i>品項項目：</span>
+                                <span class="fw-bold text-dark small" id="quotesModalItemTitle">-</span>
+                            </div>
+                            <div>
+                                <span class="fw-bold small me-1"><i class="fas fa-calculator me-1"></i>成本總額：</span>
+                                <span class="fw-bold text-dark small" id="quotesModalItemCostTotal">0</span>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="App.addQuoteRow()">
+                            <i class="fas fa-plus me-1"></i>新增報價廠商
+                        </button>
+                    </div>
+
+                    <!-- 廠商詢價報價明細列表 -->
+                    <div class="table-responsive border rounded" style="max-height: 380px; overflow-y: auto;">
+                        <table class="table table-hover table-striped align-middle mb-0 quotes-table" style="font-size: 0.9rem;">
+                            <thead class="table-light sticky-top">
+                                <tr>
+                                    <th width="60" class="text-center">遴選</th>
+                                    <th width="50" class="text-center">項次</th>
+                                    <th style="min-width: 240px;">廠商名稱</th>
+                                    <th width="160" class="text-end">廠商報價金額</th>
+                                    <th style="min-width: 250px;">備註 / 決標說明</th>
+                                    <th width="50" class="text-center">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="quotesTableBody">
+                                <!-- JS 動態生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-2 text-muted small">
+                        <i class="fas fa-circle-info me-1"></i>勾選「遴選」確定的廠商後，點擊「帶入確定廠商與報價」，系統將自動將該廠商名稱與報價金額填入預算明細表中。
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-sm btn-primary px-4" onclick="App.confirmQuotesSelection()">
+                        <i class="fas fa-check me-1"></i>帶入確定廠商與報價
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 建議廠商選擇 Modal (比照 cost-outsourcing) -->
+    <div class="modal fade" id="vendorModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content" style="height: 710px;">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">
+                        <i class="fas fa-building me-2"></i>選擇建議廠商
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <!-- 搜尋過濾區 -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-7">
+                            <label class="form-label fw-bold small text-muted">關鍵字搜尋</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                                <input type="text" class="form-control border-start-0" id="vendorSearchInput" 
+                                       placeholder="輸入廠商代號 / 名稱 / 統編..." onkeyup="App.filterVendors()">
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label fw-bold small text-muted">廠商分類</label>
+                            <select class="form-select" id="vendorCategorySelect" onchange="App.filterVendors()">
+                                <option value="">全部類別</option>
+                                <option value="A01">金屬加工類 (A01)</option>
+                                <option value="A02">表面處理類 (A02)</option>
+                                <option value="B01">機械設備類 (B01)</option>
+                                <option value="C01">工程施作類 (C01)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 廠商列表表格 -->
+                    <div class="table-responsive border rounded" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table table-hover table-striped mb-0 vendor-list-table">
+                            <thead class="table-light sticky-top">
+                                <tr>
+                                    <th width="50">選取</th>
+                                    <th width="100">廠商代號</th>
+                                    <th>廠商名稱</th>
+                                    <th width="100">統編</th>
+                                    <th width="120">分類</th>
+                                    <th width="100">聯絡人</th>
+                                    <th width="120">電話</th>
+                                    <th width="180">Email</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vendorListBody">
+                                <!-- JS 動態生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- 搜尋結果計數 -->
+                    <div class="mt-2 text-end text-muted small">
+                        共找到 <span id="vendorCount" class="fw-bold text-dark">0</span> 筆資料
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary px-4" onclick="App.confirmVendorSelection()">
+                        <i class="fas fa-check me-2"></i>確認選取
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入系統必要腳本 -->
+    <script src="../../../assets/js/bootstrap.bundle.min.js"></script>
+    <script src="../../../assets/js/xlsx.full.min.js"></script>
+    <script src="../../../assets/js/path_config.js"></script>
+    <script src="../../../assets/js/master_script.js"></script>
+    <script src="../../../assets/js/layout_loader.js"></script>
+    <script src="budget.js"></script>
+</body>
+</html>

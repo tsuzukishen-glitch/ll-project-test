@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <script>
+        window.ASSETS_PATH = '../../../';
+        window.SIDEBAR_TYPE = 'quotation-entry';
+        window.BREADCRUMBS = [
+            { name: '報價估算系統', link: '' },
+            { name: '材料編號設定', link: '' }
+        ];
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>良聯｜材料編號設定</title>
+    <link rel="shortcut icon" href="../../../assets/images/favicons/favicon.ico" type="image/x-icon">
+    <link href="../../../assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../../assets/css/all.min.css" rel="stylesheet">
+    <link href="../../../assets/css/master_style.css" rel="stylesheet">
+    <link href="material.css" rel="stylesheet">
+</head>
+<body>
+    <div id="sidebar-placeholder"></div>
+
+    <div class="main-content" id="mainContent">
+        <div id="header-placeholder"></div>
+
+        <div class="container-fluid" style="padding: 2rem;">
+
+            <!-- 頁面標題 -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="fw-bold mb-2">材料編號設定</h3>
+                    <p class="text-muted mb-0">依成本代碼維護材料編號與品名規格，供估算工作台與範本編輯器使用</p>
+                </div>
+                <button type="button" class="btn btn-primary" id="addBtn">
+                    <i class="fas fa-plus me-2"></i>新增材料編號
+                </button>
+            </div>
+
+            <div class="mcs-table-container">
+
+                <!-- 搜尋與篩選 -->
+                <div class="search-filters mcs-search-filters">
+                    <div>
+                        <label class="form-label">關鍵字搜尋</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted"><i class="fas fa-search"></i></span>
+                            <input type="text" class="form-control" id="searchKeyword" placeholder="成本代碼、材料編號或品名規格關鍵字...">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">產品代碼</label>
+                        <select class="form-select" id="filterProductCode">
+                            <option value="">全部產品</option>
+                        </select>
+                    </div>
+                    <div class="d-flex align-items-end">
+                        <button type="button" class="btn btn-outline-secondary w-100" id="clearFilterBtn">
+                            <i class="fas fa-times me-2"></i>清空條件
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table mcs-table">
+                        <thead>
+                            <tr>
+                                <th class="sortable" onclick="MaterialCodeSettings.sortData('costCode')">
+                                    成本代碼 <i class="fas fa-sort" id="icon-costCode"></i>
+                                </th>
+                                <th>產品代碼</th>
+                                <th class="sortable" onclick="MaterialCodeSettings.sortData('materialNo')">
+                                    材料編號 <i class="fas fa-sort" id="icon-materialNo"></i>
+                                </th>
+                                <th class="sortable" onclick="MaterialCodeSettings.sortData('description')">
+                                    品名規格 <i class="fas fa-sort" id="icon-description"></i>
+                                </th>
+                                <th>在建會科</th>
+                                <th class="sortable" onclick="MaterialCodeSettings.sortData('createdBy')">
+                                    建立人 <i class="fas fa-sort" id="icon-createdBy"></i>
+                                </th>
+                                <th class="sortable" onclick="MaterialCodeSettings.sortData('updatedAt')">
+                                    最後更新 <i class="fas fa-sort" id="icon-updatedAt"></i>
+                                </th>
+                                <th style="width: 110px;" class="text-center">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="materialTableBody"></tbody>
+                    </table>
+                </div>
+
+                <div id="loadingMessage" class="text-center py-5" style="display: none;">
+                    <div class="spinner-border text-primary mb-3" role="status"></div>
+                    <p class="text-muted mb-0">查詢中，資料量較大請稍候...</p>
+                </div>
+
+                <div id="noDataMessage" class="text-center py-5" style="display: none;">
+                    <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">沒有找到符合條件的材料編號</h5>
+                    <p class="text-muted small">請嘗試調整搜尋條件，或新增一筆材料編號</p>
+                </div>
+
+                <div class="pagination-section" id="paginationSection">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        <div class="d-flex align-items-center">
+                            <span class="text-muted me-3">每頁顯示</span>
+                            <select class="form-select form-select-sm me-3" style="width: auto;" id="pageSizeSelect" onchange="MaterialCodeSettings.changePageSize(this.value)">
+                                <option value="10">10</option>
+                                <option value="25" selected>25</option>
+                                <option value="50">50</option>
+                            </select>
+                            <span class="text-muted">筆，共 <span id="totalRecords">0</span> 筆</span>
+                        </div>
+                        <nav>
+                            <ul class="pagination pagination-sm mb-0" id="pagination"></ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增/編輯 材料編號 Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalTitle">新增材料編號</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label">成本代碼 *</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="formCostCode" placeholder="請點右側按鈕選擇成本代碼" readonly>
+                                <button class="btn btn-outline-primary" type="button" id="pickCostCodeBtn">
+                                    <i class="fas fa-magnifying-glass me-2"></i>選擇成本代碼
+                                </button>
+                            </div>
+                            <div class="form-text" id="formCostCodeInfo">尚未選擇成本代碼</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">材料編號 *</label>
+                            <input type="text" class="form-control" id="formMaterialNo" placeholder="例如：M101-C5F">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">品名規格 *</label>
+                            <input type="text" class="form-control" id="formDescription" placeholder="例如：PLATE_Shell (SA537 CL1)">
+                        </div>
+                    </div>
+                    <p class="text-muted small mt-3 mb-0">
+                        <i class="fas fa-circle-info me-1"></i>
+                        成本代碼必須從既有的成本代碼設定裡選擇，不能自己輸入；同一個成本代碼底下的材料編號不能重複。
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="saveBtn">儲存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 選擇成本代碼 Modal（20 幾萬筆的成本代碼資料，用搜尋代替全部列出） -->
+    <div class="modal fade" id="costCodePickerModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title">選擇成本代碼</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text bg-white text-muted"><i class="fas fa-search"></i></span>
+                        <input type="text" class="form-control" id="pickerSearchInput" placeholder="輸入成本代碼、成本描述或產品代碼關鍵字...">
+                    </div>
+                    <div id="pickerLoadingMessage" class="text-center py-4" style="display: none;">
+                        <div class="spinner-border text-primary" role="status"></div>
+                    </div>
+                    <div id="pickerEmptyMessage" class="text-center py-4 text-muted" style="display: none;">
+                        請輸入關鍵字搜尋成本代碼（資料量大，不會直接列出全部）
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr><th>成本代碼</th><th>產品代碼</th><th>成本描述</th><th>在建會科</th><th class="text-center">選擇</th></tr>
+                            </thead>
+                            <tbody id="pickerResultsBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../../assets/js/bootstrap.bundle.min.js"></script>
+    <script src="../../../assets/js/path_config.js"></script>
+    <script src="../../../assets/js/master_script.js"></script>
+    <script src="../../../assets/js/layout_loader.js"></script>
+    <script src="material.js"></script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+/* 檔案位置：modules/quotation/material-code-settings/material-code-settings.css */
+/* 良聯工程管理系統 - 材料編號設定樣式 V1.0（比照成本代碼設定） */
+
+.mcs-table-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+/* =========================================
+   搜尋與篩選列
+   ========================================= */
+.mcs-search-filters {
+    display: grid;
+    grid-template-columns: 2fr 1.4fr 1fr;
+    gap: 1rem;
+    align-items: end;
+    background: #f8fafc;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color, #e2e8f0);
+}
+
+@media (max-width: 768px) {
+    .mcs-search-filters {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =========================================
+   結果表格
+   ========================================= */
+.mcs-table {
+    width: 100%;
+    margin-bottom: 0;
+}
+
+.mcs-table th {
+    background: var(--light-bg, #f8fafc);
+    color: var(--text-muted, #64748b);
+    font-weight: 600;
+    padding: 1rem 1.25rem;
+    border-bottom: 2px solid var(--border-color, #e2e8f0);
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+.mcs-table th.sortable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.mcs-table th.sortable:hover {
+    color: var(--primary-blue, #1e40af);
+}
+
+.mcs-table th.active-sort {
+    color: var(--primary-blue, #1e40af);
+}
+
+.mcs-table th .fa-sort,
+.mcs-table th .fa-sort-up,
+.mcs-table th .fa-sort-down {
+    margin-left: 4px;
+    font-size: 0.8em;
+    color: #cbd5e1;
+}
+
+.mcs-table th.active-sort i {
+    color: var(--primary-blue, #1e40af);
+}
+
+.mcs-table td {
+    padding: 0.9rem 1.25rem;
+    border-bottom: 1px solid var(--border-color, #e2e8f0);
+    vertical-align: middle;
+    font-size: 0.92rem;
+}
+
+.mcs-table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+.mcs-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* =========================================
+   徽章
+   ========================================= */
+.costcode-badge {
+    display: inline-block;
+    background: var(--primary-blue, #1e40af);
+    color: white;
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    font-family: 'Consolas', 'Menlo', monospace;
+}
+
+.pcode-badge {
+    display: inline-block;
+    background: #f1f5f9;
+    color: #475569;
+    padding: 0.2rem 0.55rem;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    border: 1px solid #e2e8f0;
+}
+
+.matno-badge {
+    display: inline-block;
+    background: #eef2ff;
+    color: #4338ca;
+    padding: 0.25rem 0.65rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-family: 'Consolas', 'Menlo', monospace;
+}
+
+/* =========================================
+   分頁區
+   ========================================= */
+.pagination-section {
+    padding: 1.25rem 1.5rem;
+    border-top: 1px solid var(--border-color, #e2e8f0);
+}
+
+.pagination-section .pagination {
+    gap: 6px;
+}
+
+.pagination-section .page-link {
+    border: 1px solid var(--border-color, #e2e8f0);
+    background: white;
+    color: var(--text-muted, #64748b);
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 0.88rem;
+    line-height: 1.2;
+}
+
+.pagination-section .page-link:hover {
+    background: #eff6ff;
+    border-color: var(--primary-blue, #1e40af);
+    color: var(--primary-blue, #1e40af);
+}
+
+.pagination-section .page-item.active .page-link {
+    background: var(--primary-blue, #1e40af);
+    border-color: var(--primary-blue, #1e40af);
+    color: white;
+    box-shadow: none;
+}
+
+.pagination-section .page-item.disabled .page-link {
+    color: #cbd5e1;
+    background: #f8fafc;
+    border-color: var(--border-color, #e2e8f0);
+    pointer-events: none;
+}

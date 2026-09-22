@@ -1,0 +1,191 @@
+/* modules/quotation/cost-estimation/estimation.css */
+
+/* =========================================
+   估算列表 (Table 模式) 新增樣式
+   ========================================= */
+
+.content-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+.estimation-table th {
+    font-weight: 600;
+    color: var(--text-dark);
+    padding: 1rem 0.75rem;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--border-color); /* 調整為1px與專案列表一致 */
+    background-color: var(--light-bg); /* 調整色系參數與專案列表一致 */
+    font-size: 0.9rem; /* 統一字體大小 */
+}
+
+/* 加上可點擊排序的樣式 */
+.estimation-table th.sortable {
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s;
+    position: relative;
+}
+
+.estimation-table th.sortable:hover {
+    background-color: #e2e8f0;
+}
+
+.estimation-table th.sortable i {
+    margin-left: 5px;
+    color: #cbd5e1;
+    font-size: 0.8rem;
+    transition: color 0.2s;
+}
+
+.estimation-table th.sortable.active-sort {
+    background-color: #e2e8f0;
+    color: var(--primary-blue);
+}
+
+.estimation-table th.sortable.active-sort i {
+    color: var(--primary-blue);
+}
+
+.estimation-table td {
+    padding: 0.75rem;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* 單位 Badge 樣式 */
+.unit-badge {
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: var(--primary-blue);
+    display: inline-block;
+}
+
+/* 來源檔案名稱 Badge 樣式 */
+.source-badge {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    background: #f8fafc;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 0.35rem;
+    display: inline-block;
+}
+
+.user-avatar-small {
+    width: 28px;
+    height: 28px;
+    background-color: var(--primary-blue);
+    color: white;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.5rem;
+}
+
+
+/* =========================================
+   保留 Modal 樣式
+   ========================================= */
+
+.mode-selection-card {
+    --theme-color: var(--primary-blue, #0d6efd);
+    --theme-bg-tint: rgba(13, 110, 253, 0.04);
+    --hover-border-color: #cbd5e1;
+    border: 2px solid var(--border-color, #e2e8f0);
+    border-radius: 12px;
+    transition: all 0.25s ease;
+    cursor: pointer;
+    position: relative; 
+    background-color: #fff;
+    height: 100%;
+}
+
+.mode-selection-card[data-mode="matrix"] {
+    --theme-color: var(--success, #198754);
+    --theme-bg-tint: rgba(25, 135, 84, 0.04);
+}
+
+.mode-selection-card:hover {
+    border-color: var(--hover-border-color);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+}
+
+.mode-selection-card.selected {
+    border-color: var(--theme-color);
+    background-color: var(--theme-bg-tint);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.mode-selection-card.selected:hover {
+    border-color: var(--theme-color);
+}
+
+.check-indicator {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 24px;
+    height: 24px;
+    background-color: var(--theme-color);
+    color: white;
+    border-radius: 50%;
+    display: none; 
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    z-index: 2;
+}
+
+.mode-selection-card.selected .check-indicator {
+    display: flex;
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.mode-icon-wrapper {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+@keyframes popIn {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* 狀態標籤 */
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.status-pending { background: #fef3c7; color: #d97706; }
+.status-processing { background: #dbeafe; color: #1e40af; }
+.status-completed { background: #dcfce7; color: #16a34a; }
+
+/* 總價文字 */
+#headerTotalCost {
+    font-family: 'Consolas', monospace;
+    letter-spacing: 0.5px;
+}

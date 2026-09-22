@@ -1,0 +1,491 @@
+/* 成本發包計畫樣式 -  V4.7 Style Fix */
+
+/* --------------------------------------------------------------------------
+    0. CSS Variables & Reset
+    -------------------------------------------------------------------------- */
+:root {
+  --primary-blue: #1e40af;
+  --secondary-blue: #3b82f6;
+  --table-header-bg: #f1f5f9;
+  --border-color: #e2e8f0;
+  
+  /* ★ 統一圓角系統 ★ */
+  --card-radius: 12px;   /* 外層大卡片 */
+  --inner-radius: 8px;   /* 內層區塊 */
+  --input-radius: 6px;   /* 輸入框與按鈕 */
+  
+  --color-budget-bg: #eff6ff;
+  --color-budget-text: #1e40af;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #f1f5f9;
+}
+
+/* --------------------------------------------------------------------------
+    Global Layout (Full Width)
+    -------------------------------------------------------------------------- */
+.main-content.full-width {
+  margin-left: 0 !important;
+  width: 100% !important;
+  min-height: 100vh;
+}
+
+.estimation-content {
+  padding: 0 2rem;
+}
+
+/* --------------------------------------------------------------------------
+    1. Header Section
+    -------------------------------------------------------------------------- */
+.estimation-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  padding: 1.5rem 2rem;
+  background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.estimation-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.estimation-info {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.product-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--input-radius);
+  color: white;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.estimation-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.header-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.2rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--input-radius);
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.header-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+}
+
+.header-btn.primary {
+  background: #22c55e;
+  border-color: #22c55e;
+  color: white;
+}
+
+/* --------------------------------------------------------------------------
+    2. Dashboard Panels
+    -------------------------------------------------------------------------- */
+.dashboard-panel, 
+.content-section {
+  margin-bottom: 1.5rem;
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--card-radius); /* 統一使用變數 */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.dashboard-header, 
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: #ffffff;
+  border-bottom: 1px solid var(--border-color);
+  border-radius: var(--card-radius) var(--card-radius) 0 0;
+}
+
+.section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.dashboard-body, 
+.section-content {
+  padding: 1.5rem;
+}
+
+.info-field {
+  height: 100%;
+  padding: 0.6rem 0.75rem;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--inner-radius); /* 統一內層圓角 */
+}
+
+.info-label {
+  margin-bottom: 0.25rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.info-input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+  outline: none;
+}
+
+.amount-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(to right, #eff6ff, #ffffff);
+  border: 1px solid #bfdbfe;
+  border-left: 4px solid #3b82f6;
+  border-radius: var(--inner-radius); /* 統一內層圓角 */
+}
+
+.amount-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.amount-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1e40af;
+}
+
+/* --------------------------------------------------------------------------
+    3. Table Styles
+    -------------------------------------------------------------------------- */
+.table-container {
+  width: 100%;
+  max-height: 60vh;
+  overflow-x: auto;
+  /* ★ 關鍵修正：強制加上底部圓角，避免捲軸直角凸出 */
+  border-bottom-left-radius: var(--card-border-radius);
+  border-bottom-right-radius: var(--card-border-radius);
+}
+
+.estimation-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.estimation-table th {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 0.8rem 0.5rem;
+  background: var(--table-header-bg);
+  border-bottom: 1px solid #cbd5e1;
+  border-right: 1px solid #e2e8f0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #334155;
+  text-align: center;
+}
+
+.estimation-table td {
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+  border-right: 1px solid #f1f5f9;
+  vertical-align: middle;
+  font-size: 0.9rem;
+}
+
+/* Sticky Columns */
+.sticky-col {
+  position: sticky;
+  z-index: 50;
+  background-color: #fff !important;
+  border-right: 2px solid #cbd5e1 !important;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+}
+
+.col-ops { left: 0; min-width: 80px; }
+.col-idx { left: 80px; min-width: 50px; }
+
+.estimation-table thead th.sticky-col {
+  z-index: 150;
+  background-color: var(--table-header-bg) !important;
+}
+
+.col-budget {
+  background-color: #eff6ff !important;
+  border-left: 2px solid #bfdbfe !important;
+  font-weight: 700;
+  color: #1e40af;
+  text-align: right;
+}
+
+/* 標準輸入框樣式 */
+.form-input-compact {
+  width: 100%;
+  padding: 0.5rem 0.75rem; /* 標準內距 */
+  font-size: 0.9rem;       /* 標準字體 */
+  border: 1px solid #cbd5e1;
+  border-radius: var(--input-radius);
+  transition: all 0.2s;
+  height: 38px; /* 強制高度，確保對齊 */
+}
+
+.form-input-compact:focus {
+  border-color: #3b82f6;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* ★ 廠商輸入框群組修正 (Fix Vendor Input Style) ★ */
+.estimation-table .input-group {
+    flex-wrap: nowrap; /* 避免換行 */
+}
+
+.estimation-table .input-group .form-control {
+    /* 強制覆蓋 Bootstrap 預設樣式，使其與 .form-input-compact 一致 */
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.9rem !important;
+    border-color: #cbd5e1;
+    color: #1e293b;
+    height: 38px !important;
+    border-top-left-radius: var(--input-radius) !important;
+    border-bottom-left-radius: var(--input-radius) !important;
+}
+
+.estimation-table .input-group .form-control:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    z-index: 1;
+}
+
+/* 修正按鈕樣式 */
+.estimation-table .input-group .btn {
+    padding: 0.5rem 0.75rem;
+    border-color: #cbd5e1;
+    color: #64748b;
+    background: #f8fafc;
+    height: 38px;
+    border-top-right-radius: var(--input-radius) !important;
+    border-bottom-right-radius: var(--input-radius) !important;
+}
+
+.estimation-table .input-group .btn:hover {
+    background: #eff6ff;
+    border-color: #3b82f6;
+    color: #3b82f6;
+}
+
+/* 確保唯讀欄位看起來不像 disable */
+.form-control[readonly].vendor-name-display {
+    background-color: white !important;
+    cursor: pointer;
+}
+
+
+/* Buttons inside Table */
+.btn-sort {
+  padding: 4px 8px;
+  background: white;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  color: #64748b;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-sort:hover {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.btn-delete {
+  color: #ef4444 !important;
+  border-color: #fecaca !important;
+}
+
+/* --------------------------------------------------------------------------
+    4. File Upload (Attachments) UI
+    -------------------------------------------------------------------------- */
+.upload-drop-zone {
+  padding: 2rem;
+  background-color: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 6px; 
+  text-align: center;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.upload-drop-zone:hover {
+  background-color: #f0f9ff;
+  border-color: var(--secondary-blue);
+}
+
+.file-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.file-card {
+  position: relative;
+  padding: 12px 10px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--inner-radius); /* 統一使用變數 */
+  text-align: center;
+  transition: 0.2s;
+}
+
+.file-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.file-card .file-icon {
+  margin-bottom: 8px;
+  font-size: 2.2rem;
+}
+
+.file-card .file-name {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-card .file-remove {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: #ef4444;
+  border: 2px solid white;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  color: white;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+/* ★ Modal 表格樣式 (一致化修正) ★ */
+.vendor-list-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+/* 統一表頭樣式 */
+.vendor-list-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    padding: 0.8rem 0.5rem;
+    background-color: var(--table-header-bg) !important; /* 與工作台一致 */
+    border-bottom: 1px solid #cbd5e1;
+    border-right: 1px solid #e2e8f0; /* 加入右邊框線 */
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #334155;
+    text-align: center; /* 表頭置中 */
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+/* 統一內容樣式 */
+.vendor-list-table td {
+    padding: 0.6rem 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+    border-right: 1px solid #f1f5f9; /* 加入右邊框線 (更淡) */
+    vertical-align: middle;
+    font-size: 0.9rem;
+    color: #1e293b;
+}
+
+.vendor-row {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.vendor-row:hover {
+    background-color: #f0f9ff !important;
+}
+
+.vendor-row.table-active {
+    background-color: #eff6ff !important;
+    border-left: 3px solid #3b82f6; /* 選取時左側加強提示 */
+}
+
+.pointer-events-none {
+    pointer-events: none;
+}
+
+/* ★ 表頭固定與層級修正 ★ */
+.vendor-list-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 20; /* 確保表頭層級高於 tbody */
+    background-color: #f8f9fa; /* 強制設定背景色，避免透明 */
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1); /* 加入陰影增加層次感 */
+}

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        window.ASSETS_PATH = '../../'; 
+        window.BREADCRUMBS = [
+            { name: '功能模組', link: '' },
+            { name: '氣體洩漏偵測', link: '' } 
+        ];
+    </script>
+    <title>良聯｜氣體洩漏偵測</title>
+    <link rel="shortcut icon" href="../../../assets/images/favicons/favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- 引用本地 Bootstrap CSS -->
+    <link href="../../../assets/css/bootstrap.min.css" rel="stylesheet">
+    <!-- 引用本地 Font Awesome CSS -->
+    <link href="../../../assets/css/all.min.css" rel="stylesheet">
+    <link href="../../assets/css/master_style.css" rel="stylesheet">
+        <!-- 引入 Leaflet 地圖 -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <link href="detection.css" rel="stylesheet">
+</head>
+<body>
+    <div id="sidebar-placeholder"></div>
+    <div class="main-content" id="mainContent">
+        <div id="header-placeholder"></div>
+        <div class="container-fluid" style="padding: 2rem;">
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="fw-bold mb-1">氣體洩漏偵測</h3>
+                    <p class="text-muted mb-0">即時監控各區域氣體濃度與異常狀態</p>
+                </div>
+                <div>
+                    <button class="btn btn-primary me-2" onclick="GasSystem.openHistoryModal()">
+                        <i class="fas fa-search me-1"></i> 歷史數據查詢
+                    </button>
+                    <!-- ★ 移位：模擬發送通報按鈕改到這裡 -->
+                    <button class="btn btn-success me-2" onclick="GasSystem.simulateSendAlert()">
+                        <i class="fab fa-line me-1"></i> 模擬發送通報
+                    </button>
+                    <button class="btn btn-outline-danger" onclick="GasSystem.simulator.triggerAlarm()">
+                        <i class="fas fa-fire me-1"></i> 模擬異常
+                    </button>
+                </div>
+            </div>
+
+            <!-- 上半部：地圖與即時列表 -->
+            <div class="row g-4 mb-4">
+                <div class="col-lg-8">
+                    <div class="sensor-list-card">
+                        <div class="card-body p-0 position-relative">
+                            <button class="btn btn-light shadow-sm position-absolute" 
+                                    style="top: 15px; right: 15px; z-index: 1000; border-radius: 8px;" 
+                                    onclick="GasSystem.resetMapView()" title="回到全域視角">
+                                <i class="fas fa-expand-arrows-alt me-1"></i>全域檢視
+                            </button>
+                            <div class="map-container" id="map"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="sensor-list-card">
+                        <div class="sensor-list-header">
+                            <span>即時數值列表</span>
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-secondary me-2" id="totalSensorsBadge">0 點位</span>
+                                <button class="btn btn-sm btn-link text-secondary p-0" onclick="GasSystem.openBulkSettings()" title="參數與通報設定">
+                                    <i class="fas fa-cog fa-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="sensor-list-body" id="sensorListBody">
+                            <div class="text-center py-5 text-muted">
+                                <div class="spinner-border spinner-border-sm mb-2" role="status"></div>
+                                <div>載入中...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 下半部：異常數值列表 -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm abnormal-list-card">
+                        <div class="card-header bg-white border-bottom py-3">
+                            <h6 class="mb-0 fw-bold text-danger d-flex align-items-center">
+                                <div><i class="fas fa-exclamation-triangle me-2"></i>異常點位監控列表</div>
+                            </h6>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover table-striped mb-0 align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>標示</th>
+                                            <th>點位名稱</th>
+                                            <th>當前數值</th>
+                                            <th>警戒值</th>
+                                            <th>通報人</th>
+                                            <th>發生時間</th>
+                                            <th>持續時間</th>
+                                            <th>歷史查詢</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="abnormalListBody">
+                                        <tr><td colspan="8" class="text-center text-muted py-4">讀取中...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 批次參數設定彈窗 (解決多重卷軸問題) -->
+    <div class="modal fade" id="bulkSettingsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content" style="min-height: 550px;">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">
+                        <i class="fas fa-cog me-2"></i>
+                        <span>點位設定 (警戒值與通報人)</span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="row g-0 h-100">
+                        <!-- 左側：移除 overflow-auto，並讓內部的頁籤具有 sticky-top 效果 -->
+                        <div class="col-4 border-end bg-light">
+                            <div class="nav flex-column nav-pills p-3 sticky-top" style="top: 0;" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                                <!-- 由 JS 動態生成 -->
+                            </div>
+                        </div>
+                        <!-- 右側：移除 overflow-auto，將捲軸統一交給外層 modal-body 處理 -->
+                        <div class="col-8">
+                            <!-- ★ 關鍵修復：加入 padding-bottom: 220px 預留足夠空間給 200px 高的展開選單，避免展開時觸發畫面跳動與多餘捲軸 -->
+                            <div class="tab-content p-4" id="v-pills-tabContent" style="padding-bottom: 220px !important;">
+                                <!-- 由 JS 動態生成 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="GasSystem.saveBulkSettings()">
+                        <i class="fas fa-save me-1"></i> 儲存所有設定
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 歷史數據列表彈窗 -->
+    <div class="modal fade" id="historyModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content" style="height: 750px;">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">
+                        <i class="fas fa-history me-2"></i>
+                        <span id="historyTitle">歷史數據查詢</span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4 d-flex flex-column overflow-hidden">
+                    <div class="d-flex gap-2 mb-3 flex-wrap align-items-center">
+                        <select class="form-select fw-bold text-primary border-primary" id="historyFilterSensor" style="width: auto; min-width: 234px;" title="選擇點位" onchange="GasSystem.changeHistorySensor()">
+                            <!-- 由 JS 動態載入點位選項 -->
+                        </select>
+
+                        <input type="datetime-local" class="form-control" id="historyFilterStart" title="開始時間" style="width: auto;" onchange="GasSystem.generateHistoryListData()">
+                        <span class="text-muted fw-bold">~</span>
+                        <input type="datetime-local" class="form-control" id="historyFilterEnd" title="結束時間" style="width: auto;" onchange="GasSystem.generateHistoryListData()">
+                        
+                        <select class="form-select" id="historyFilterStatus" style="width: auto; min-width: 150px;" title="狀態篩選" onchange="GasSystem.generateHistoryListData()">
+                            <option value="">全部狀態</option>
+                            <option value="Alarm">警報</option>
+                            <option value="Normal">正常</option>
+                        </select>
+                        
+                        <button class="btn btn-success" onclick="GasSystem.exportHistoryReport()">
+                            <i class="fas fa-file-excel me-1"></i> 匯出
+                        </button>
+                    </div>
+                    
+                    <div class="border rounded flex-grow-1 overflow-auto">
+                        <table class="table table-hover table-striped mb-0 align-middle">
+                            <thead class="table-light sticky-top bg-light" style="z-index: 1;">
+                                <tr>
+                                    <th class="ps-3">標示</th>
+                                    <th>點位名稱</th>
+                                    <th>記錄時間</th>
+                                    <th class="text-end pe-4">測量數值</th>
+                                    <th>狀態判定</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTableBody">
+                                <!-- 由 JS 動態生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">關閉</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模擬手機端警報接收畫面 -->
+    <div class="modal fade" id="mobileAlertModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 400px;">
+            <div class="modal-content mobile-alert-content">
+                <div class="mobile-alert-header">
+                    <i class="fas fa-exclamation-triangle fa-2x mb-2 text-danger animate-blink"></i>
+                    <h4 class="fw-bold mb-0 text-white">氣體異常警報</h4>
+                    <p class="mb-0 text-white-50 small" id="mobileAlertTime"></p>
+                </div>
+                <div class="modal-body p-4 bg-light">
+                    <div class="text-center mb-4">
+                        <div class="mobile-badge" id="mobileLabel">A</div>
+                        <h5 class="fw-bold text-dark mt-2" id="mobileName">行政大樓</h5>
+                    </div>
+                    
+                    <div class="mobile-value-box">
+                        <div class="text-muted small mb-1">當前偵測濃度</div>
+                        <div class="mobile-value text-danger" id="mobileValue">0.0</div>
+                        <div class="mobile-unit" id="mobileUnit">PPM</div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-3 text-muted small">
+                        <span>設定警戒值：<span id="mobileLimit"></span></span>
+                        <span class="text-end">通知對象：<span id="mobileNotifier" class="d-block text-truncate" style="max-width:120px;" title=""></span></span>
+                    </div>
+
+                    <!-- 手機版小地圖容器 -->
+                    <div class="mobile-map-container mb-3" id="mobileMap"></div>
+
+                    <button type="button" class="btn btn-primary w-100 py-2 fw-bold shadow-sm" data-bs-dismiss="modal">
+                        <i class="fas fa-check-circle me-2"></i>我已收到，立即前往處理
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/path_config.js"></script>
+    <script src="../../assets/js/master_script.js"></script>
+    <script src="../../assets/js/layout_loader.js"></script>
+    <script src="detection.js"></script>
+</body>
+</html>

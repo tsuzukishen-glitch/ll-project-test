@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>良聯｜議價價格檢討</title>
+    <script>
+        window.ASSETS_PATH = '../../../';
+        window.SIDEBAR_TYPE = 'project';
+        window.BREADCRUMBS = [
+            { name: '報價估算系統', link: '' },
+            { name: '專案列表', link: '../project-list/index.html' },
+            { name: '專案儀表板', link: '../project-dashboard/index.html' },
+            { name: '議價價格檢討', link: '' }
+        ];
+    </script>
+    <link rel="shortcut icon" href="../../../assets/images/favicons/favicon.ico" type="image/x-icon">
+    <link href="../../../assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../../assets/css/all.min.css" rel="stylesheet">
+    <link href="../../../assets/css/master_style.css" rel="stylesheet">
+    <link href="../../../modules/quotation/cost-detail/detail.css" rel="stylesheet">
+    <link href="../bid-integration/integration.css" rel="stylesheet">
+    <link href="negotiation.css" rel="stylesheet">
+</head>
+<body>
+    <div id="sidebar-placeholder"></div>
+
+    <main class="main-content">
+        <!-- 頂部工作台 Header：結構比照投標資料彙整，版次資訊改為三段（投標版次／議價版次／基礎投標版次） -->
+        <header class="estimation-header">
+            <div class="estimation-header-content">
+                <div class="estimation-info">
+                    <a href="javascript:history.back()" id="backBtn" class="back-btn">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>返回儀表版</span>
+                    </a>
+                    <div>
+                        <h1 class="product-title">議價價格檢討</h1>
+                    </div>
+                    <div class="version-info-bar">
+                        <span class="badge bg-light text-primary" id="headerBidVersion" style="font-size: 0.8rem;">投標版次：-</span>
+                    </div>
+                </div>
+                <div class="estimation-actions">
+                    <button class="header-btn excel-btn" onclick="exportQuotation()">
+                        <i class="fas fa-file-excel"></i>
+                        <span>匯出議價報價單</span>
+                    </button>
+                    <button class="header-btn primary" id="btnLockVersion" onclick="lockNegotiationVersion()">
+                        <i class="fas fa-check-double"></i>
+                        <span>完成議價彙總</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="estimation-content">
+
+            <!-- 鎖定提示（本輪議價版次已鎖定時顯示） -->
+            <div class="locked-banner" id="lockedBanner" style="display:none;">
+                <i class="fas fa-lock"></i>
+                <span>本輪議價版次（<b id="lockedVersionText">D1</b>）已鎖定，資料僅供查閱；如需繼續調整，請點選「新增議價版次」。</span>
+            </div>
+
+            <!-- 基礎投標版次提示 -->
+            <div class="base-version-hint">
+                <i class="fas fa-diagram-project"></i>
+                <span>本次議價以投標版次 <b id="baseVersionText">-</b> 為基礎展開。</span>
+            </div>
+
+            <!-- 1. 專案基本資訊：比照估算價格檢討頁面之結構，版次改為議價版次 D1/D2… -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h6 class="section-title"><i class="fas fa-info-circle"></i>專案基礎資訊總覽</h6>
+                    <span class="text-muted small">單位：新台幣 (NTD)</span>
+                </div>
+                <div class="dashboard-body">
+                    <div class="row g-3 align-items-stretch">
+                        <div class="col-lg-2 col-md-4">
+                            <div class="info-field">
+                                <label class="info-label">報價編號</label>
+                                <input type="text" class="info-input" id="quoteId" value="EQ25090001" readonly>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-4">
+                            <div class="info-field">
+                                <label class="info-label">專案名稱</label>
+                                <input type="text" class="info-input" id="projectName" value="載入中..." readonly>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-4">
+                            <div class="info-field">
+                                <label class="info-label">業主名稱</label>
+                                <input type="text" class="info-input" id="clientName" value="台灣積體電路" readonly>
+                            </div>
+                        </div>
+                        <div class="col-lg-1 col-md-2">
+                            <div class="info-field">
+                                <label class="info-label">議價版次</label>
+                                <select class="info-input border-0 px-0" id="versionSelect" onchange="onNegVersionSelectChange(this.value)"></select>
+                            </div>
+                        </div>
+
+                        <!-- 議價後總工時 -->
+                        <div class="col-lg-1 col-md-3">
+                            <div class="amount-box" style="border-left-color: #64748b; background: linear-gradient(to right, #f8fafc, #ffffff);">
+                                <label class="amount-label text-secondary" style="font-size: 0.8rem;">專案總工時(hr)</label>
+                                <div class="amount-value text-secondary text-end fs-4 mt-auto" id="projectTotalHoursDisplay">0</div>
+                            </div>
+                        </div>
+
+                        <!-- 議價後彙總成本 -->
+                        <div class="col-lg-2 col-md-3 ms-auto">
+                            <div class="amount-box" style="border-left-color: #3b82f6; background: linear-gradient(to right, #eff6ff, #ffffff);">
+                                <label class="amount-label text-primary">專案彙總成本</label>
+                                <div class="amount-value text-primary text-end fs-3" id="projectTotalCostDisplay">0</div>
+                            </div>
+                        </div>
+
+                        <!-- 議價後彙總報價 -->
+                        <div class="col-lg-2 col-md-4">
+                            <div class="amount-box" style="border-left-color: #10b981; background: linear-gradient(to right, #ecfdf5, #ffffff);">
+                                <label class="amount-label text-success">專案彙總報價</label>
+                                <div class="amount-value text-success text-end fs-3" id="projectGrandTotal">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. 成本估算／工程估算彙整表：欄位結構完全比照投標資料彙整，項次後新增「版次」欄 -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h6 class="section-title"><i class="fas fa-calculator"></i>議價彙整明細</h6>
+                    <span class="text-muted small">點選「編輯」進入工作台修訂明細，議價後金額由修訂後明細重新加總產生</span>
+                </div>
+                <div class="section-content p-0">
+                    <div class="table-container">
+                        <!-- 成本估算表 -->
+                        <div class="bg-light px-3 py-2 fw-bold border-bottom text-primary">成本估算</div>
+                        <table class="estimation-table">
+                            <thead>
+                                <tr>
+                                    <th class="sticky-col text-center" style="min-width: 100px;">操作</th>
+                                    <th class="sticky-col text-center" style="min-width: 50px;">項次</th>
+                                    <th style="min-width: 250px;">項目名稱</th>
+                                    <th style="min-width: 120px;">設備編號</th>
+                                    <th style="min-width: 150px;">設備名稱</th>
+                                    <th style="min-width: 100px;">執行單位</th>
+                                    <th style="min-width: 100px;">估算人員</th>
+                                    <th class="text-center" style="min-width: 90px;">版次</th>
+                                    <th class="text-center" style="min-width: 90px;">狀態</th>
+                                    <th class="text-end" style="min-width: 100px;">總工時(hr)</th>
+                                    <th class="text-end border-cost" style="min-width: 130px;">總計成本總價</th>
+                                    <th class="text-end col-indirect border-indirect" style="min-width: 100px;">%+間接費用</th>
+                                    <th class="text-end col-profit border-profit" style="min-width: 100px;">%+利潤</th>
+                                    <th class="text-end col-risk border-risk" style="min-width: 100px;">%+風險</th>
+                                    <th class="text-end col-neg border-neg" style="min-width: 100px;">%+議價</th>
+                                    <th class="text-end border-total col-total" style="min-width: 140px;">總價</th>
+                                </tr>
+                            </thead>
+                            <tbody id="costTableBody"></tbody>
+                            <tfoot>
+                                <tr class="total-row">
+                                    <td colspan="9" class="text-end fw-bold">成本估算 小計：</td>
+                                    <td class="text-end" id="costHoursSubtotal">0</td>
+                                    <td class="text-end border-cost" id="costBaseSubtotal">0</td>
+                                    <td class="text-end border-indirect col-indirect">
+                                        <div id="costIndSubtotal">0</div><div class="small opacity-75" id="costIndPct">0.0%</div>
+                                    </td>
+                                    <td class="text-end border-profit col-profit">
+                                        <div id="costProfSubtotal">0</div><div class="small opacity-75" id="costProfPct">0.0%</div>
+                                    </td>
+                                    <td class="text-end border-risk col-risk">
+                                        <div id="costRiskSubtotal">0</div><div class="small opacity-75" id="costRiskPct">0.0%</div>
+                                    </td>
+                                    <td class="text-end border-neg col-neg">
+                                        <div id="costNegSubtotal">0</div><div class="small opacity-75" id="costNegPct">0.0%</div>
+                                    </td>
+                                    <td class="text-end border-total col-total" id="costGrandSubtotal" style="font-size:1.1rem;">0</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <!-- 工程估算表 -->
+                        <div class="bg-light px-3 py-2 fw-bold border-bottom text-primary border-top">工程估算</div>
+                        <table class="estimation-table">
+                            <thead>
+                                <tr>
+                                    <th class="sticky-col text-center" style="min-width: 100px;">操作</th>
+                                    <th class="sticky-col text-center" style="min-width: 50px;">項次</th>
+                                    <th style="min-width: 250px;">項目名稱</th>
+                                    <th style="min-width: 270px;">施工地點</th>
+                                    <th style="min-width: 100px;">執行單位</th>
+                                    <th style="min-width: 100px;">估算人員</th>
+                                    <th class="text-center" style="min-width: 90px;">版次</th>
+                                    <th class="text-center" style="min-width: 90px;">狀態</th>
+                                    <th class="text-end" style="min-width: 100px;">總工時(hr)</th>
+                                    <th class="text-end border-cost" style="min-width: 130px;">總計成本總價</th>
+                                    <th class="text-end col-indirect border-indirect" style="min-width: 100px;">%+間接費用</th>
+                                    <th class="text-end col-profit border-profit" style="min-width: 100px;">%+利潤</th>
+                                    <th class="text-end col-risk border-risk" style="min-width: 100px;">%+風險</th>
+                                    <th class="text-end col-neg border-neg" style="min-width: 100px;">%+議價</th>
+                                    <th class="text-end border-total col-total" style="min-width: 140px;">總價</th>
+                                </tr>
+                            </thead>
+                            <tbody id="engTableBody"></tbody>
+                            <tfoot>
+                                <tr class="total-row">
+                                    <td colspan="8" class="text-end fw-bold">工程估算 小計：</td>
+                                    <td class="text-end" id="engHoursSubtotal">0</td>
+                                    <td class="text-end border-cost" id="engBaseSubtotal">0</td>
+                                    <td class="text-end border-indirect col-indirect">
+                                        <div id="engIndSubtotal">0</div><div class="small opacity-75" id="engIndPct">0.0%</div>
+                                    </td>
+                                    <td class="text-end border-profit col-profit">
+                                        <div id="engProfSubtotal">0</div><div class="small opacity-75" id="engProfPct">0.0%</div>
+                                    </td>
+                                    <td class="text-end border-risk col-risk">
+                                        <div id="engRiskSubtotal">0</div><div class="small opacity-75" id="engRiskPct">0.0%</div>
+                                    </td>
+                                    <td class="text-end border-neg col-neg">
+                                        <div id="engNegSubtotal">0</div><div class="small opacity-75" id="engNegPct">0.0%</div>
+                                    </td>
+                                    <td class="text-end border-total col-total" id="engGrandSubtotal" style="font-size:1.1rem;">0</td>
+                                </tr>
+                                <tr class="total-row" style="border-top: 2px solid #0284c7;">
+                                    <td colspan="8" class="text-end text-primary fw-bold" style="font-size:1.1rem;">專案總計：</td>
+                                    <td class="text-end text-primary fw-bold" id="projectHoursSubtotal">0</td>
+                                    <td class="text-end border-cost text-primary fw-bold" id="projectBaseSubtotal">0</td>
+                                    <td class="text-end border-indirect col-indirect text-primary fw-bold">
+                                        <div id="projectIndSubtotal">0</div><div class="small opacity-75" id="projectIndPct">0.0%</div>
+                                    </td>
+                                    <td class="text-end border-profit col-profit text-primary fw-bold">
+                                        <div id="projectProfSubtotal">0</div><div class="small opacity-75" id="projectProfPct">0.0%</div>
+                                    </td>
+                                    <td class="text-end border-risk col-risk text-primary fw-bold">
+                                        <div id="projectRiskSubtotal">0</div><div class="small opacity-75" id="projectRiskPct">0.0%</div>
+                                    </td>
+                                    <td class="text-end border-neg col-neg text-primary fw-bold">
+                                        <div id="projectNegSubtotal">0</div><div class="small opacity-75" id="projectNegPct">0.0%</div>
+                                    </td>
+                                    <td class="text-end border-total col-total text-primary fw-bold" id="projectGrandSubtotal" style="font-size:1.25rem;">0</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. 議價備註（比照投標彙整之專案備註樣式） -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h6 class="section-title"><i class="fas fa-edit"></i>議價備註</h6>
+                    <span class="text-muted small">目前議價版次：<span id="currentVersionLabel">D1</span></span>
+                </div>
+                <div class="section-content">
+                    <textarea class="form-control" id="roundRemark" rows="4" placeholder="請輸入本輪議價檢討會議討論重點與結論..."></textarea>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Modal：檢視歷史議價版次 -->
+    <div class="modal fade" id="versionViewModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title"><i class="fas fa-clock-rotate-left me-2 text-primary"></i><span id="versionViewTitle">D1</span> 議價版次檢視</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="versionViewBody"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 核心套件 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+
+    <script src="../../../assets/js/path_config.js"></script>
+    <script src="../../../assets/js/master_script.js"></script>
+    <script src="../../../assets/js/layout_loader.js"></script>
+    <script src="negotiation.js"></script>
+</body>
+</html>

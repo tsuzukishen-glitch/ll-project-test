@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        window.ASSETS_PATH = '../../../';
+    </script>
+
+    <title>良聯｜工程發包計劃</title>
+    <link rel="shortcut icon" href="../../../assets/images/favicons/favicon.ico" type="image/x-icon">
+    <link href="../../../assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../../assets/css/all.min.css" rel="stylesheet">
+    <link href="../../../assets/css/master_style.css" rel="stylesheet">
+    <!-- 完全共用原本的 CSS 檔案 -->
+    <link href="../../../modules/quotation/cost-outsourcing/outsourcing.css" rel="stylesheet">
+</head>
+<body>
+    <main class="main-content full-width">
+        <!-- 1. Header  -->
+        <header class="estimation-header">
+            <div class="estimation-header-content">
+                <div class="estimation-info">
+                    <a href="javascript:history.back()" class="back-btn">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>返回儀表板</span>
+                    </a>
+                    <div>
+                        <h1 class="product-title">工程發包計劃</h1>
+                    </div>
+                </div>
+                <div class="estimation-actions">
+                    <button class="header-btn" onclick="ConstructionPlan.saveData()">
+                        <i class="fas fa-save"></i>
+                        <span>儲存</span>
+                    </button>
+                    <button class="header-btn primary" onclick="ConstructionPlan.submitPlan()">
+                        <i class="fas fa-check"></i>
+                        <span>完成發包計劃</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="estimation-content">
+            <!-- 2. 專案資訊面板 (完全還原原版卡片樣式) -->
+            <div class="dashboard-panel mt-4">
+                <div class="dashboard-header">
+                    <h6 class="section-title"><i class="fas fa-sliders-h"></i>基礎資訊</h6>
+                </div>
+                <div class="dashboard-body">
+                    <div class="row g-3">
+                        <div class="col-lg-2">
+                            <div class="info-field">
+                                <label class="info-label">施工地點</label>
+                                <input type="text" class="info-input" value="中油林園廠">
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="info-field">
+                                <label class="info-label">工作性質</label>
+                                <input type="text" class="info-input" value="設備拆裝工程">
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="info-field">
+                                <label class="info-label">版次</label>
+                                <input type="text" class="info-input" value="V1.0">
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="info-field">
+                                <label class="info-label">計畫日期</label>
+                                <input type="date" class="info-input" id="planDate" value="2024-04-01">
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="amount-box">
+                                <label class="amount-label">發包總價 (報價金額)</label>
+                                <div class="amount-value text-primary" id="totalQuotationDisplay">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. 發包詢價工作台 -->
+            <div class="content-section mt-4">
+                <div class="section-header">
+                    <h6 class="section-title"><i class="fas fa-calculator"></i>發包明細表</h6>
+                    <button class="btn btn-primary" onclick="ConstructionPlan.addItem()">
+                        <i class="fas fa-plus me-1"></i>新增發包項目
+                    </button>
+                </div>
+                
+                <div class="table-container">
+                    <!-- 完全還原 estimation-table 樣式，移除強制 border 與置中 -->
+                    <table class="estimation-table">
+                        <thead>
+                            <tr>
+                                <th class="sticky-col col-ops text-center" style="min-width: 80px;">操作</th>
+                                <th class="sticky-col col-idx text-center" style="min-width: 50px;">項次</th>
+                                <th style="min-width: 100px;">工別</th>
+                                <th style="min-width: 280px;">發包內容</th>
+                                <th style="min-width: 220px;">數量</th>
+                                <th style="min-width: 280px;">建議廠商</th>
+                                <th style="min-width: 100px;">聯絡人</th>
+                                <th style="min-width: 140px;">電話</th>
+                                <th style="min-width: 190px;">Email</th>
+                                <th style="min-width: 100px;">施工場地</th>
+                                <th style="min-width: 140px;">預算金額</th>
+                                <th style="min-width: 100px;">廠商報價</th>
+                                <th style="min-width: 140px;">希望完成日</th>
+                                <th style="min-width: 100px;">廠商回復</th>
+                                <th style="min-width: 140px;">實際完成日</th>
+                                <th style="min-width: 100px;">遴選結果</th>
+                                <th style="min-width: 140px;">報價金額</th>
+                                <th style="min-width: 250px;">備註</th>
+                            </tr>
+                        </thead>
+                        <tbody id="constructionPlanBody">
+                            <!-- JS 動態生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 4. 備註與附件區域 (還原原版備註欄樣式) -->
+            <div class="row mt-4 mb-5">
+                <div class="col-lg-12">
+                    <div class="content-section">
+                        <div class="section-header">
+                            <h6 class="section-title"><i class="fas fa-file-alt"></i>備註欄</h6>
+                        </div>
+                        <div class="section-content">
+                            <textarea class="form-control" rows="5" style="resize: none;">1. 本案預計現場施工日期:2023/11/17~2023/12/25，施工工期: 38 天 (第二階段為廢棄物處理，施作日期待業主通知，施作工期 15 天)
+2. 本案現場施作範圍:新舊塔槽拆裝、內構件安裝、周邊管線移除&回復、保溫&保冷安裝、防火被覆
+3. 本案塔槽安裝廠商報價含爬梯、平台、欄杆安裝費用(安裝廠商須於桶槽出貨前至良聯廠內安裝爬梯平台欄杆)
+4. 本案需配合業主要求，現場作漏水試驗及沉降測試、紀錄
+5. 本案不含基礎螺栓更新</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 5. 廠商選擇 Modal (直接沿用) -->
+    <div class="modal fade" id="vendorModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content" style="height: 710px;">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">
+                        <i class="fas fa-building me-2"></i>選擇建議廠商
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <!-- 搜尋過濾區 -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-7">
+                            <label class="form-label fw-bold small text-muted">關鍵字搜尋</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                                <input type="text" class="form-control border-start-0" id="vendorSearchInput" 
+                                       placeholder="輸入廠商代號 / 名稱 / 統編..." onkeyup="ConstructionPlan.filterVendors()">
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label fw-bold small text-muted">廠商分類</label>
+                            <select class="form-select" id="vendorCategorySelect" onchange="ConstructionPlan.filterVendors()">
+                                <option value="">全部類別</option>
+                                <option value="A01">金屬加工類 (A01)</option>
+                                <option value="A02">表面處理類 (A02)</option>
+                                <option value="B01">機械設備類 (B01)</option>
+                                <option value="C01">工程施作類 (C01)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 廠商列表表格 -->
+                    <div class="table-responsive border rounded" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table table-hover table-striped mb-0 vendor-list-table">
+                            <thead class="table-light sticky-top">
+                                <tr>
+                                    <th width="50">選取</th>
+                                    <th width="100">廠商代號</th>
+                                    <th>廠商名稱</th>
+                                    <th width="100">統編</th>
+                                    <th width="120">分類</th>
+                                    <th width="100">聯絡人</th>
+                                    <th width="120">電話</th>
+                                    <th width="180">Email</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vendorListBody">
+                                <!-- JS 動態生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- 搜尋結果計數 -->
+                    <div class="mt-2 text-end text-muted small">
+                        共找到 <span id="vendorCount" class="fw-bold text-dark">0</span> 筆資料
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary px-4" onclick="ConstructionPlan.confirmVendorSelection()">
+                        <i class="fas fa-check me-2"></i>確認選取
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script src="../../../assets/js/path_config.js"></script>
+    <script src="../../../assets/js/master_script.js"></script>
+    <script src="eng_outsourcing.js"></script>
+</body>
+</html>

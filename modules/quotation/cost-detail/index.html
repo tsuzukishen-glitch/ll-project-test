@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        window.ASSETS_PATH = '../../../';
+        window.SIDEBAR_TYPE = 'project';
+        window.BREADCRUMBS = [
+            { name: '報價估算系統', link: '../project-list/index.html' },
+            { name: '專案儀表板', link: '../project-dashboard/index.html' },    
+            { name: '成本估算', link: '../cost-estimation/index.html' },
+            { name: '詳細估算', link: '' }
+        ];
+    </script>
+
+    <title>良聯｜成本估算工作台</title>
+    <link rel="shortcut icon" href="../../../assets/images/favicons/favicon.ico" type="image/x-icon">
+    <link href="../../../assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../../assets/css/all.min.css" rel="stylesheet">
+    <link href="../../../assets/css/master_style.css" rel="stylesheet">
+    <link href="detail.css" rel="stylesheet">
+</head>
+<body>
+    <main class="main-content">
+        <!-- 1. Header -->
+        <header class="estimation-header">
+            <div class="estimation-header-content">
+                <div class="estimation-info">
+                    <a href="../cost-estimation/index.html" class="back-btn">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>返回列表</span>
+                    </a>
+                    <div>
+                        <h1 class="product-title" id="pageTitle">詳細估算</h1>
+                    </div>
+                    <div>
+                        <span id="currentModeBadge" class="badge bg-secondary" style="font-size: 0.8rem;">載入中...</span>
+                    </div>
+                </div>
+                <div class="estimation-actions">
+                    <a href="../cost-history/index.html" class="header-btn" target="_blank" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; color: inherit; cursor: pointer;">
+                        <i class="fas fa-history"></i>
+                        <span>版本紀錄</span>
+                    </a>
+                    <button class="header-btn" onclick="DetailEstimation.saveData()">
+                        <i class="fas fa-save"></i>
+                        <span>儲存</span>
+                    </button>
+                    <!-- ★ 新增匯出 Excel 按鈕 -->
+                    <button class="header-btn" onclick="DetailEstimation.exportToExcel()" style="background: #0284c7; border-color: #0284c7;">
+                        <i class="fas fa-file-excel"></i>
+                        <span>匯出 Excel</span>
+                    </button>
+                    <button class="header-btn primary" onclick="DetailEstimation.completeEstimation()">
+                        <i class="fas fa-check"></i>
+                        <span>完成估算</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="estimation-content">
+            <!-- 2. 資訊總覽面板 -->
+            <div class="content-section mt-4">
+                <div class="section-header">
+                    <h6 class="section-title"><i class="fas fa-sliders-h me-2"></i>專案資訊設定</h6>
+                    <span class="text-muted small">單位：新台幣 (NTD) / mm / kg</span>
+                </div>
+                
+                <div class="dashboard-body">
+                    <div class="row g-3">
+                        <div class="col-lg-2 col-md-4">
+                            <div class="info-field">
+                                <label class="info-label">設備編號</label>
+                                <input type="text" class="info-input" id="equipmentId" placeholder="輸入編號">
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-4">
+                            <div class="info-field">
+                                <label class="info-label">設備名稱</label>
+                                <input type="text" class="info-input" id="equipmentName" placeholder="輸入名稱">
+                            </div>
+                        </div>
+                        <div class="col-lg-1 col-md-2">
+                            <div class="info-field">
+                                <label class="info-label">版次</label>
+                                <input type="text" class="info-input" id="version" value="V1.0">
+                            </div>
+                        </div>
+                         <div class="col-lg-2 col-md-2">
+                            <div class="info-field">
+                                <label class="info-label">估算日期</label>
+                                <input type="date" class="info-input" id="estimationDate">
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-2 col-md-6">
+                             <div class="info-field" style="background-color: #f8fafc;">
+                                <label class="info-label">工時單價 (NT$/Hr)</label>
+                                <div class="info-value" id="pricePerMh">0</div>
+                            </div>
+                        </div>
+                         <div class="col-lg-2 col-md-6">
+                             <div class="info-field" style="background-color: #f8fafc;">
+                                <label class="info-label">數量單價 (NT$/KG)</label>
+                                <div class="info-value" id="pricePerKg">0</div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-2 col-md-3">
+                            <div class="info-field">
+                                <label class="info-label">胴身厚</label>
+                                <input type="text" class="info-input" id="shellThickness" placeholder="0">
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-3">
+                            <div class="info-field">
+                                <label class="info-label">內徑</label>
+                                <input type="number" class="info-input" id="innerDiameter" placeholder="0">
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-3">
+                            <div class="info-field">
+                                <label class="info-label">總長度</label>
+                                <input type="number" class="info-input" id="totalLength" placeholder="0">
+                            </div>
+                        </div>
+                         <div class="col-lg-2 col-md-3">
+                            <div class="info-field">
+                                <label class="info-label">套數</label>
+                                <input type="number" class="info-input fw-bold text-primary" id="setQty" value="1" min="1" onchange="DetailEstimation.calculateMetrics()">
+                            </div>
+                        </div>
+
+                        <div class="col-lg-2 col-md-6">
+                            <div class="amount-box">
+                                <label class="amount-label">單套總計</label>
+                                <div class="amount-value" id="grandTotalDisplay">0</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-6">
+                            <div class="amount-box" style="border-left-color: #10b981;">
+                                <label class="amount-label">專案總價 (含套數)</label>
+                                <div class="amount-value text-success" id="projectTotalDisplay">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 矩陣模式專用數據區塊 -->
+                    <div id="matrixMetricsRow" class="row g-3 mt-2" >
+                        <div class="col-12 mb-1">
+                            <span class="badge bg-success bg-opacity-10 text-success border border-success px-3 py-2">
+                                <i class="fas fa-th me-1"></i> 矩陣單價數據 (NT$/Ton)
+                            </span>
+                        </div>
+                        
+                        <div class="col-lg-2 col-md-4">
+                            <div class="info-field border-warning" style="background-color: #fffbeb;">
+                                <label class="info-label text-warning-emphasis">材料成本單價</label>
+                                <div class="info-value" id="mxMatCostUnit">0</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-4">
+                            <div class="info-field border-warning" style="background-color: #fffbeb;">
+                                <label class="info-label text-warning-emphasis">材料利管單價</label>
+                                <div class="info-value fw-bold" id="mxMatMgmtUnit">0</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-4">
+                            <div class="info-field border-info" style="background-color: #f0f9ff;">
+                                <label class="info-label text-info-emphasis">製作成本單價</label>
+                                <div class="info-value" id="mxMfgCostUnit">0</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-4">
+                            <div class="info-field border-info" style="background-color: #f0f9ff;">
+                                <label class="info-label text-info-emphasis">製作利管單價</label>
+                                <div class="info-value fw-bold" id="mxMfgMgmtUnit">0</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-4">
+                            <div class="info-field border-primary" style="background-color: #eff6ff;">
+                                <label class="info-label text-primary-emphasis">總利管單價 (材+製)</label>
+                                <div class="info-value fw-bold text-primary" id="mxTotalMgmtUnit">0</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-4">
+                            <div class="info-field border-secondary" style="background-color: #f8fafc;">
+                                <label class="info-label text-secondary">總工時 (H)</label>
+                                <div class="info-value" id="mxTotalManHours">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. 估算工作台 -->
+            <div class="content-section mt-2" id="workbenchSection">
+                <div class="section-header">
+                    <h6 class="section-title">
+                        <i class="fas fa-calculator"></i>
+                        估算工作台
+                    </h6>
+                </div>
+
+                <div class="control-toolbar">
+                    
+                    <div class="toolbar-group">
+                        <button class="btn btn-primary" onclick="DetailEstimation.addItem()">
+                            <i class="fas fa-plus me-1"></i>新增項目
+                        </button>
+                    </div>
+
+                    <div class="toolbar-group flex-grow-1 justify-content-center">
+                        <span class="toolbar-label"><i class="fas fa-sliders-h me-1"></i>批次設定：</span>
+                        
+                        <div class="input-group input-group-sm" style="width: 110px;">
+                            <span class="input-group-text bg-secondary text-white fw-bold">間接 %</span>
+                            <input type="number" class="form-control text-center fw-bold" id="globalIndirect" value="2" onchange="DetailEstimation.applyGlobalRate('indirect', this.value)">
+                        </div>
+                        <div class="input-group input-group-sm" style="width: 110px;">
+                            <span class="input-group-text bg-success text-white fw-bold">利潤 %</span>
+                            <input type="number" class="form-control text-center fw-bold" id="globalProfit" value="2" onchange="DetailEstimation.applyGlobalRate('profit', this.value)">
+                        </div>
+                        <div class="input-group input-group-sm" style="width: 110px;">
+                            <span class="input-group-text bg-warning text-dark fw-bold">風險 %</span>
+                            <input type="number" class="form-control text-center fw-bold" id="globalRisk" value="2" onchange="DetailEstimation.applyGlobalRate('risk', this.value)">
+                        </div>
+                        
+                        <div class="input-group input-group-sm" style="width: 110px;">
+                            <span class="input-group-text bg-danger text-white fw-bold">議價 %</span>
+                            <input type="number" class="form-control text-center fw-bold" id="globalNeg" value="2" onchange="DetailEstimation.applyGlobalRate('negotiation', this.value)">
+                        </div>
+                    </div>
+
+                    <button class="btn btn-outline-secondary" id="fullscreenBtn" onclick="DetailEstimation.toggleFullscreen()" title="切換滿版模式">
+                        <i class="fas fa-expand"></i> 滿版編輯
+                    </button>
+                </div>
+                
+                <div class="section-content p-0">
+                    <div class="table-container">
+                        <table class="estimation-table" id="mainTable">
+                            <thead>
+                                <tr>
+                                    <th class="sticky-col text-center" style="min-width: 90px;">操作</th>
+                                    <th class="sticky-col text-center" style="min-width: 50px;">項次</th>
+                                    <th style="min-width: 150px;">專案分類</th>
+                                    <th style="min-width: 130px;">成本代碼</th>
+                                    <th style="min-width: 130px;">在建會科</th>
+                                    <th style="min-width: 130px;">材料編號</th>
+                                    <th class="sticky-col-7" style="min-width: 350px;">工程內容/品名規格</th>
+                                    <th style="min-width: 120px;">執行部門</th>
+                                    <th style="min-width: 120px;">工種</th>
+                                    <th style="min-width: 100px;">材質</th>
+                                    <th style="min-width: 90px;">單位</th>
+                                    
+                                    <th style="min-width: 90px;">材料<br>數量</th>
+                                    <th style="min-width: 90px;">製造<br>數量</th>
+                                    <th style="min-width: 90px;" class="text-center">Cut.<br>Lose</th>
+                                    
+                                    <th style="min-width: 150px;">單價</th> 
+                                    <th class="border-cost col-cost text-end" style="min-width: 120px;">小計</th>
+                                    <th class="border-cost col-cost text-end" style="min-width: 120px;">利管單價</th>
+                                    <th class="border-indirect col-indirect text-center" style="min-width: 50px;">%</th>
+                                    <th class="col-indirect text-end" style="min-width: 90px;">間接費用</th>
+                                    <th class="border-profit col-profit text-center" style="min-width: 50px;">%</th>
+                                    <th class="col-profit text-end" style="min-width: 90px;">利潤</th>
+                                    <th class="border-risk col-risk text-center" style="min-width: 50px;">%</th>
+                                    <th class="col-risk text-end" style="min-width: 90px;">風險</th>
+                                    <th class="border-neg col-neg text-center" style="min-width: 50px;">%</th>
+                                    <th class="col-neg text-end" style="min-width: 90px;">議價</th>
+                                    <th class="border-total col-total text-end" style="min-width: 130px;">總計</th>
+                                    <th class="border-cost text-center" style="min-width: 80px;">工時(H)</th>
+                                    <th style="min-width: 300px;">備註</th>
+                                </tr>
+                            </thead>
+                            <tbody id="estimationTableBody"></tbody>
+                            
+                            <tfoot>
+                                <tr class="total-row">
+                                    <td class="sticky-col"></td>
+                                    <td class="sticky-col"></td>
+                                    
+                                    <td colspan="4"></td>
+                                    <td class="sticky-col-7"></td>
+                                    <td colspan="4" class="text-end">總計：</td>
+
+                                    <td id="footerMatQty" class="text-end fw-bold text-primary">-</td>
+                                    <td id="footerMfgQty" class="text-end fw-bold text-primary">-</td>
+                                    <td id="footerCutLose" class="text-center text-danger fw-bold">-</td>
+                                    
+                                    <td></td>
+                                    <td id="footerBaseTotal" class="text-end" style="color: var(--color-cost-text);">-</td>
+                                    <td></td>
+                                    <td id="footerIndirectAvg" class="text-center text-muted"></td>
+                                    <td id="footerIndirectTotal" class="text-end" style="color: var(--color-indirect-text);">-</td>
+                                    <td id="footerProfitAvg" class="text-center text-muted"></td>
+                                    <td id="footerProfitTotal" class="text-end" style="color: var(--color-profit-text);">-</td>
+                                    <td id="footerRiskAvg" class="text-center text-muted"></td>
+                                    <td id="footerRiskTotal" class="text-end" style="color: var(--color-risk-text);">-</td>
+                                    <td id="footerNegAvg" class="text-center text-muted"></td>
+                                    <td id="footerNegTotal" class="text-end" style="color: var(--color-neg-text);">-</td>
+                                    <td id="footerGrandTotal" class="text-end" style="color: var(--color-total-text); font-size: 1.1rem;">-</td>
+                                    <td id="footerManHours" class="text-center">-</td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        
+                        <div id="matrixModeContainer" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. 備註欄 -->
+            <div class="content-section">
+                <div class="section-header">
+                     <h6 class="section-title"><i class="fas fa-file-alt"></i>備註欄</h6>
+                </div>
+                <div class="section-content">
+                    <textarea class="form-control" id="projectRemarks" rows="4" placeholder="請輸入成本備註說明..."></textarea>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Modal -->
+    <div class="modal fade" id="historyPriceModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title">歷史單價查詢</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3 p-3 bg-light rounded border">
+                        <div class="row g-2">
+                            <div class="col-md-6"><span class="text-muted small">查詢項目：</span><span class="fw-bold" id="historyItemName">-</span></div>
+                            <div class="col-md-6"><span class="text-muted small">材料編號：</span><span class="fw-bold" id="historyItemMatNo">-</span></div>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered align-middle">
+                            <thead class="table-light">
+                                <tr><th>採購日期</th><th>供應商</th><th>專案編號</th><th class="text-end">單價</th><th>備註</th><th class="text-center">選擇</th></tr>
+                            </thead>
+                            <tbody id="historyTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ★ 引入 SheetJS 套件處理 Excel 匯出 -->
+    <script src="../../../assets/js/xlsx.full.min.js"></script>
+    
+    <script src="../../../assets/js/bootstrap.bundle.min.js"></script>
+    <script src="../../../assets/js/path_config.js"></script>
+    <script src="../../../assets/js/master_script.js"></script>
+    <script src="../../../assets/js/layout_loader.js"></script>
+    <script src="detail.js"></script>
+    <script src="detail_matrix.js"></script>
+</body>
+</html>

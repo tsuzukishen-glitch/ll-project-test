@@ -1,0 +1,281 @@
+/* 投標彙整頁面專用樣式 - 承襲 Detail Estimation 工作台風格 */
+
+:root {
+    --card-border-radius: 12px;
+    --table-border-color: #e2e8f0;
+}
+
+body {
+    background-color: #f1f5f9;
+}
+
+/* 隱藏預設的左側選單，啟用滿版 */
+#sidebar-placeholder { display: none !important; }
+.main-content { margin-left: 0 !important; width: 100% !important; padding-bottom: 2rem; }
+
+/* ============ Header 樣式 ============ */
+.estimation-header {
+    background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+    color: white;
+    padding: 1.5rem 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.estimation-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.estimation-info {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.product-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin: 0;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.back-btn {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.back-btn:hover { background: rgba(255,255,255,0.2); color: white; }
+
+.estimation-actions { display: flex; gap: 0.8rem; }
+
+.header-btn {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.header-btn:hover { background: rgba(255,255,255,0.25); color: white; }
+.header-btn.primary { background: #22c55e; border-color: #22c55e; color: white; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+.header-btn.primary:hover { background: #16a34a; transform: translateY(-1px); }
+
+/* ============ 區塊與儀表板樣式 ============ */
+.estimation-content { padding: 0 2rem; }
+
+.content-section {
+    background: white;
+    border-radius: var(--card-border-radius);
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    border: 1px solid var(--table-border-color);
+    overflow: hidden;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 2px solid #f1f5f9;
+    background: white;
+}
+
+.section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.dashboard-body { padding: 1.5rem; }
+.section-content { padding: 1.5rem; }
+
+.info-field {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px; 
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%; 
+    min-height: 75px;
+    transition: all 0.2s;
+}
+
+.info-field:focus-within {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.info-label {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-bottom: 0.35rem;
+    font-weight: 600;
+}
+
+.info-input {
+    border: none;
+    background: transparent;
+    font-size: 1.1rem;
+    font-weight: 700; 
+    color: #1e293b;
+    width: 100%;
+    padding: 0;
+}
+.info-input:focus { outline: none; }
+
+.info-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.amount-box {
+    background: linear-gradient(to right, #eff6ff, #ffffff); 
+    border: 1px solid #bfdbfe;
+    border-left: 4px solid #3b82f6;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.amount-label { font-size: 0.95rem; margin-bottom: 0.25rem; font-weight: 600; }
+.amount-value { font-weight: 800; line-height: 1.2; }
+
+/* ============ 表格樣式 ============ */
+.table-container { width: 100%; overflow-x: auto; position: relative; }
+
+.estimation-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    min-width: 1200px;
+}
+
+.estimation-table th {
+    background: #f1f5f9;
+    padding: 0.75rem 0.5rem;
+    font-weight: 600;
+    color: #334155;
+    border-bottom: 1px solid #cbd5e1;
+    border-right: 1px solid #e2e8f0;
+    text-align: left;
+    white-space: nowrap;
+    font-size: 0.9rem;
+}
+
+.estimation-table td {
+    padding: 0.5rem;
+    border-bottom: 1px solid var(--table-border-color);
+    border-right: 1px solid #f1f5f9;
+    vertical-align: middle;
+    font-size: 0.9rem;
+    color: #334155;
+    background-color: #fff;
+}
+
+.estimation-table tbody tr:hover td { background-color: #eff6ff; }
+.border-cost { border-left: 2px solid #bfdbfe !important; }
+
+/* 腳註總計列 */
+.total-row td {
+    background: #f8fafc;
+    font-weight: 700;
+    border-top: 2px solid #94a3b8;
+    padding: 1rem 0.5rem;
+    color: #1e293b;
+}
+
+/* ============ 各項費用色彩與邊框對齊工作台 ============ */
+:root {
+    --color-indirect-bg: #f1f5f9;
+    --color-indirect-text: #64748b;
+    --color-profit-bg: #f0fdf4;
+    --color-profit-text: #059669;
+    --color-risk-bg: #fffbeb;
+    --color-risk-text: #d97706;
+    --color-neg-bg: #fef2f2;
+    --color-neg-text: #dc2626;
+    --color-total-bg: #eff6ff;
+    --color-total-text: #1e40af;
+}
+
+/* 儲存格與表頭背景與文字色 */
+.estimation-table th.col-indirect, .estimation-table td.col-indirect { background-color: var(--color-indirect-bg) !important; color: var(--color-indirect-text); }
+.estimation-table th.col-profit, .estimation-table td.col-profit { background-color: var(--color-profit-bg) !important; color: var(--color-profit-text); }
+.estimation-table th.col-risk, .estimation-table td.col-risk { background-color: var(--color-risk-bg) !important; color: var(--color-risk-text); }
+.estimation-table th.col-neg, .estimation-table td.col-neg { background-color: var(--color-neg-bg) !important; color: var(--color-neg-text); }
+.estimation-table th.col-total, .estimation-table td.col-total { background-color: var(--color-total-bg) !important; color: var(--color-total-text); }
+
+/* 欄位分隔線邊框色 */
+.estimation-table .border-indirect { border-left: 2px solid #cbd5e1 !important; }
+.estimation-table .border-profit { border-left: 2px solid #bbf7d0 !important; }
+.estimation-table .border-risk { border-left: 2px solid #fde68a !important; }
+.estimation-table .border-neg { border-left: 2px solid #fecaca !important; }
+.estimation-table .border-total { border-left: 2px solid #bfdbfe !important; }
+
+/* ============ 版次欄位（品項估算版本 A1/A2…） ============ */
+.version-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+}
+.version-chip {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #1e40af;
+    border: 1px solid #bfdbfe;
+}
+.version-chip.revised {
+    background: #fffbeb;
+    color: #b45309;
+    border-color: #fde68a;
+}
+.revised-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #f59e0b;
+    flex: 0 0 auto;
+    cursor: help;
+}
+
+/* RWD */
+@media (max-width: 768px) {
+    .estimation-header-content { flex-direction: column; align-items: flex-start; gap: 1rem; }
+    .estimation-actions { width: 100%; justify-content: space-between; }
+    .estimation-content { padding: 0 1rem; }
+}

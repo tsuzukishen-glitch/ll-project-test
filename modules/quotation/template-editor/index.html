@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        window.ASSETS_PATH = '../../../';
+        window.SIDEBAR_TYPE = 'quotation-entry';
+        window.BREADCRUMBS = [
+            { name: '報價估算系統', link: '' },
+            { name: '範本管理', link: '../template-list/index.html' },
+            { name: '範本編輯器', link: '' }
+        ];
+    </script>
+
+    <title>良聯｜範本編輯器</title>
+    <link rel="shortcut icon" href="../../../assets/images/favicons/favicon.ico" type="image/x-icon">
+    <link href="../../../assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../../assets/css/all.min.css" rel="stylesheet">
+    <link href="../../../assets/css/master_style.css" rel="stylesheet">
+    <link href="editor.css" rel="stylesheet">
+</head>
+<body>
+    <main class="main-content">
+        <!-- 1. Header -->
+        <header class="estimation-header">
+            <div class="estimation-header-content">
+                <div class="estimation-info">
+                    <a href="../template-list/index.html" class="back-btn">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>返回列表</span>
+                    </a>
+                    <div>
+                        <h1 class="product-title" id="pageTitle">新增範本</h1>
+                    </div>
+                </div>
+                <div class="estimation-actions">
+                    <button class="header-btn primary" onclick="TemplateEditor.saveTemplate()">
+                        <i class="fas fa-save"></i>
+                        <span>儲存範本</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="estimation-content">
+            <!-- 2. 範本資訊設定 -->
+            <div class="content-section mt-4">
+                <div class="section-header">
+                    <h6 class="section-title"><i class="fas fa-sliders-h me-2"></i>範本資訊設定</h6>
+                    <span class="text-muted small">參考規格值，套用範本後可自行調整</span>
+                </div>
+
+                <div class="dashboard-body">
+                    <div class="row g-3">
+                        <div class="col-lg-2 col-md-4">
+                            <div class="info-field">
+                                <label class="info-label">範本編號</label>
+                                <input type="text" class="info-input" id="templateCode" placeholder="可留空">
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-4">
+                            <div class="info-field">
+                                <label class="info-label">範本名稱 *</label>
+                                <input type="text" class="info-input" id="templateName" placeholder="輸入範本名稱">
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-4">
+                            <div class="info-field">
+                                <label class="info-label">範本類型</label>
+                                <select class="info-input" id="templateType" onchange="TemplateEditor.handleTypeChange(this.value)">
+                                    <option value="equipment">設備範本</option>
+                                    <option value="engineering">工程範本</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-4">
+                            <div class="info-field">
+                                <label class="info-label">分類代碼 *</label>
+                                <select class="info-input" id="productCode"></select>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-3">
+                            <div class="info-field justify-content-center">
+                                <label class="info-label">狀態</label>
+                                <div class="form-check form-switch mb-0">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="isActive" checked onchange="TemplateEditor.handleStatusChange(this.checked)">
+                                    <label class="form-check-label small" id="isActiveLabel" for="isActive">啟用</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-2 col-md-3 geometry-field">
+                            <div class="info-field">
+                                <label class="info-label">胴身厚</label>
+                                <input type="text" class="info-input" id="shellThickness" placeholder="0">
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-3 geometry-field">
+                            <div class="info-field">
+                                <label class="info-label">內徑</label>
+                                <input type="number" class="info-input" id="innerDiameter" placeholder="0">
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-3 geometry-field">
+                            <div class="info-field">
+                                <label class="info-label">總長度</label>
+                                <input type="number" class="info-input" id="totalLength" placeholder="0">
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-3 geometry-field">
+                            <div class="info-field">
+                                <label class="info-label">參考套數</label>
+                                <input type="number" class="info-input" id="setQty" value="1" min="1">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. 範本項目清單 -->
+            <div class="content-section mt-2" id="workbenchSection">
+                <div class="section-header">
+                    <h6 class="section-title">
+                        <i class="fas fa-list-ul"></i>
+                        項目清單
+                    </h6>
+                </div>
+
+                <div class="control-toolbar">
+                    <div class="toolbar-group">
+                        <button class="btn btn-primary" onclick="TemplateEditor.addItem()">
+                            <i class="fas fa-plus me-1"></i>新增項目
+                        </button>
+                    </div>
+
+                    <button class="btn btn-outline-secondary" id="fullscreenBtn" onclick="TemplateEditor.toggleFullscreen()" title="切換滿版模式">
+                        <i class="fas fa-expand"></i> 滿版編輯
+                    </button>
+                </div>
+
+                <div class="section-content p-0">
+                    <div class="table-container">
+                        <table class="estimation-table" id="itemsTable">
+                            <thead>
+                                <tr>
+                                    <th class="sticky-col text-center" style="min-width: 90px;">操作</th>
+                                    <th class="sticky-col text-center" style="min-width: 50px;">項次</th>
+                                    <th style="min-width: 150px;">專案分類</th>
+                                    <th style="min-width: 130px;">成本代碼</th>
+                                    <th style="min-width: 130px;">在建會科</th>
+                                    <th style="min-width: 130px;">材料編號</th>
+                                    <th class="sticky-col-7" style="min-width: 350px;">工程內容/品名規格</th>
+                                    <th style="min-width: 120px;">執行部門</th>
+                                    <th style="min-width: 120px;">工種</th>
+                                    <th style="min-width: 100px;">材質</th>
+                                    <th style="min-width: 90px;">單位</th>
+                                    <th style="min-width: 90px;">材料<br>數量</th>
+                                    <th style="min-width: 90px;">製造<br>數量</th>
+                                    <th style="min-width: 90px;" class="text-center">Cut.<br>Lose</th>
+                                    <th style="min-width: 150px;">參考單價</th>
+                                    <th style="min-width: 80px;" class="text-center">工時(H)</th>
+                                    <th style="min-width: 300px;">備註</th>
+                                </tr>
+                            </thead>
+                            <tbody id="itemsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="noItemsMessage" class="text-center py-5" style="display: none;">
+                    <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
+                    <p class="text-muted mb-0">尚未新增任何項目，點上方「新增項目」開始建立</p>
+                </div>
+            </div>
+
+            <!-- 4. 備註欄 -->
+            <div class="content-section">
+                <div class="section-header">
+                     <h6 class="section-title"><i class="fas fa-file-alt"></i>範本備註</h6>
+                </div>
+                <div class="section-content">
+                    <textarea class="form-control" id="templateRemarks" rows="11" placeholder="範本使用說明、適用情境或其他提醒..."></textarea>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 歷史單價查詢（比照估算工作台） -->
+    <div class="modal fade" id="historyPriceModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title">歷史單價查詢</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3 p-3 bg-light rounded border">
+                        <div class="row g-2">
+                            <div class="col-md-6"><span class="text-muted small">查詢項目：</span><span class="fw-bold" id="historyItemName">-</span></div>
+                            <div class="col-md-6"><span class="text-muted small">材料編號：</span><span class="fw-bold" id="historyItemMatNo">-</span></div>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered align-middle">
+                            <thead class="table-light">
+                                <tr><th>採購日期</th><th>供應商</th><th>專案編號</th><th class="text-end">單價</th><th>備註</th><th class="text-center">選擇</th></tr>
+                            </thead>
+                            <tbody id="historyTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../../assets/js/bootstrap.bundle.min.js"></script>
+    <script src="../../../assets/js/path_config.js"></script>
+    <script src="../../../assets/js/master_script.js"></script>
+    <script src="../../../assets/js/layout_loader.js"></script>
+    <script src="editor.js"></script>
+</body>
+</html>

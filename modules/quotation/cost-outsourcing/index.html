@@ -1,0 +1,233 @@
+<!-- 成本發包計畫頁面架構 - V4.7 Modal 廠商選擇器版 -->
+ 
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        window.ASSETS_PATH = '../../../';
+    </script>
+
+    <title>良聯｜成本發包計劃</title>
+    <link rel="shortcut icon" href="../../../assets/images/favicons/favicon.ico" type="image/x-icon">
+    <link href="../../../assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../../assets/css/all.min.css" rel="stylesheet">
+    <link href="../../../assets/css/master_style.css" rel="stylesheet">
+    <link href="outsourcing.css" rel="stylesheet">
+</head>
+<body>
+    <main class="main-content full-width">
+        <!-- 1. Header  -->
+        <header class="estimation-header">
+            <div class="estimation-header-content">
+                <div class="estimation-info">
+                    <a href="javascript:history.back()" class="back-btn">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>返回儀表板</span>
+                    </a>
+                    <div>
+                        <h1 class="product-title">成本發包計劃</h1>
+                    </div>
+                </div>
+                <div class="estimation-actions">
+                    <!-- <button class="header-btn" onclick="OutsourcingPlan.showHistory()">
+                        <i class="fas fa-history"></i>
+                        <span>版本紀錄</span>
+                    </button>  -->
+                    <button class="header-btn" onclick="OutsourcingPlan.saveData()">
+                        <i class="fas fa-save"></i>
+                        <span>儲存</span>
+                    </button>
+                    <button class="header-btn primary" onclick="OutsourcingPlan.submitPlan()">
+                        <i class="fas fa-check"></i>
+                        <span>完成發包計劃</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="estimation-content">
+            <!-- 2. 專案資訊面板 -->
+            <div class="dashboard-panel mt-4">
+                <div class="dashboard-header">
+                    <h6 class="section-title"><i class="fas fa-sliders-h"></i>基礎資訊</h6>
+                </div>
+                <div class="dashboard-body">
+                    <div class="row g-3">
+                        <div class="col-lg-2">
+                            <div class="info-field">
+                                <label class="info-label">業務承辦</label>
+                                <input type="text" class="info-input" value="張育霖">
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="info-field">
+                                <label class="info-label">成本承辦</label>
+                                <input type="text" class="info-input" value="李大維">
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="info-field">
+                                <label class="info-label">版次</label>
+                                <input type="text" class="info-input" value="V1.0">
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="info-field">
+                                <label class="info-label">計畫日期</label>
+                                <input type="date" class="info-input" id="planDate">
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="amount-box">
+                                <label class="amount-label">發包預算總金額</label>
+                                <div class="amount-value" id="totalBudgetDisplay">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. 發包詢價工作台 -->
+            <div class="content-section mt-4">
+                <div class="section-header">
+                    <h6 class="section-title"><i class="fas fa-calculator"></i>發包明細表</h6>
+                    <button class="btn btn-primary" onclick="OutsourcingPlan.addItem()">
+                        <i class="fas fa-plus me-1"></i>新增發包內容
+                    </button>
+                </div>
+                
+                <div class="table-container">
+                    <table class="estimation-table">
+                        <thead>
+                            <tr>
+                                <th class="sticky-col col-ops">操作</th>
+                                <th class="sticky-col col-idx">項次</th>
+                                <th style="min-width: 100px;">分類代號</th>
+                                <th style="min-width: 400px;">發包內容</th>
+                                <th style="min-width: 90px;">數量</th>
+                                <th style="min-width: 80px;">單位</th>
+                                <th style="min-width: 280px;">建議廠商</th>
+                                <th style="min-width: 120px;">聯絡人</th>
+                                <th style="min-width: 140px;">電話</th>
+                                <th style="min-width: 190px;">Email</th>
+                                <th style="min-width: 100px;">施工場地</th>
+                                <th style="min-width: 150px;">預算金額</th>
+                                <th style="min-width: 400px;">備註說明</th>
+                            </tr>
+                        </thead>
+                        <tbody id="planBody">
+                            <!-- JS 動態生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 4. 備註與附件區域 -->
+            <div class="row mt-4 mb-5">
+                <div class="col-lg-12">
+                    <div class="content-section">
+                        <div class="section-header">
+                            <h6 class="section-title"><i class="fas fa-file-alt"></i>備註欄</h6>
+                        </div>
+                        <div class="section-content">
+                            <textarea class="form-control" rows="5" style="resize: none;" placeholder="請輸入備註..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <!-- <div class="col-lg-12">
+                    <div class="content-section">
+                        <div class="section-header">
+                            <h6 class="section-title"><i class="fas fa-paperclip"></i>附件管理</h6>
+                        </div>
+                        <div class="section-content">
+                            <div class="upload-drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                                <i class="fas fa-folder-open opacity-50 fa-3x mb-3"></i>
+                                <h6 class="mb-1">點擊或拖曳檔案至此</h6>
+                                <p class="text-muted small mb-0">支援 PDF, Excel, 圖檔等</p>
+                            </div>
+                            <input type="file" id="fileInput" class="d-none" multiple onchange="OutsourcingPlan.handleFileUpload(event)">
+                            <div id="fileGrid" class="file-grid mt-3"></div>
+                        </div>
+                    </div>
+                </div> -->
+            </div>
+        </div>
+    </main>
+
+    <!-- 5. 廠商選擇 Modal (新增部分) -->
+    <div class="modal fade" id="vendorModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content" style="height: 710px;">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">
+                        <i class="fas fa-building me-2"></i>選擇建議廠商
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <!-- 搜尋過濾區 -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-7">
+                            <label class="form-label fw-bold small text-muted">關鍵字搜尋</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                                <input type="text" class="form-control border-start-0" id="vendorSearchInput" 
+                                       placeholder="輸入廠商代號 / 名稱 / 統編..." onkeyup="OutsourcingPlan.filterVendors()">
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label fw-bold small text-muted">廠商分類</label>
+                            <select class="form-select" id="vendorCategorySelect" onchange="OutsourcingPlan.filterVendors()">
+                                <option value="">全部類別</option>
+                                <option value="A01">金屬加工類 (A01)</option>
+                                <option value="A02">表面處理類 (A02)</option>
+                                <option value="B01">機械設備類 (B01)</option>
+                                <option value="C01">工程施作類 (C01)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 廠商列表表格 -->
+                    <div class="table-responsive border rounded" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table table-hover table-striped mb-0 vendor-list-table">
+                            <thead class="table-light sticky-top">
+                                <tr>
+                                    <th width="50">選取</th>
+                                    <th width="100">廠商代號</th>
+                                    <th>廠商名稱</th>
+                                    <th width="100">統編</th>
+                                    <th width="120">分類</th>
+                                    <th width="100">聯絡人</th>
+                                    <th width="120">電話</th>
+                                    <th width="180">Email</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vendorListBody">
+                                <!-- JS 動態生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- 搜尋結果計數 -->
+                    <div class="mt-2 text-end text-muted small">
+                        共找到 <span id="vendorCount" class="fw-bold text-dark">0</span> 筆資料
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary px-4" onclick="OutsourcingPlan.confirmVendorSelection()">
+                        <i class="fas fa-check me-2"></i>確認選取
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script src="../../../assets/js/path_config.js"></script>
+    <script src="../../../assets/js/master_script.js"></script>
+    <script src="outsourcing.js"></script>
+</body>
+</html>

@@ -1,0 +1,378 @@
+/* 專案列表頁面特定樣式 */
+        
+        /* ============ ERP同步狀態區域 ============ */
+        .erp-sync-banner {
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sync-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .sync-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .sync-status {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        /* ============ 專案狀態統計 ============ */
+        .project-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid;
+            transition: transform 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-card.total { border-left-color: var(--info); }
+        .stat-card.bidding { border-left-color: var(--warning); }
+        .stat-card.awarded { border-left-color: var(--success); }
+        .stat-card.archived { border-left-color: var(--text-muted); }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .stat-title {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .stat-icon {
+            font-size: 1.5rem;
+            opacity: 0.3;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            line-height: 1;
+        }
+
+        .stat-note {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        /* ============ 專案表格 ============ */
+        .project-table-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .table-header {
+            background: var(--light-bg);
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* 統一搜尋區塊樣式 (比照 user.css) */
+        .search-filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            background: #f8fafc;
+            border-bottom: 1px solid var(--border-color);
+            /* 移除 align-items: end，讓標籤自然在上方 */
+        }
+
+        .project-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .project-table th {
+            background: var(--light-bg);
+            font-weight: 600;
+            color: var(--text-dark);
+            padding: 1rem 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+        
+        .project-table th.sortable {
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.2s;
+            position: relative;
+        }
+
+        .project-table th.sortable:hover {
+            background-color: #e2e8f0;
+        }
+
+        .project-table th.sortable i {
+            margin-left: 5px;
+            color: #cbd5e1;
+            font-size: 0.8rem;
+            transition: color 0.2s;
+        }
+
+        .project-table th.sortable.active-sort {
+            background-color: #e2e8f0;
+            color: var(--primary-blue);
+        }
+
+        .project-table th.sortable.active-sort i {
+            color: var(--primary-blue);
+        }
+
+        .project-table td {
+            padding: 1rem 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+            font-size: 0.9rem;
+        }
+
+        .project-table tbody tr {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .project-table tbody tr:hover {
+            background-color: rgba(30, 64, 175, 0.05);
+        }
+
+        .project-id-badge {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .quotation-id-badge {
+            background: var(--primary-blue);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .project-status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-draft { background: #f3f4f6; color: #6b7280; }
+        .status-bidding { background: #fef3c7; color: #d97706; }
+        .status-awarded { background: #dcfce7; color: #16a34a; }
+        .status-archived { background: #fee2e2; color: #dc2626; }
+
+        .project-progress {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .progress-bar-mini {
+            width: 60px;
+            height: 6px;
+            background: var(--border-color);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill-mini {
+            height: 100%;
+            background: var(--success);
+            transition: width 0.3s ease;
+        }
+
+        .amount-text {
+            font-weight: 600;
+            color: var(--success);
+        }
+
+        .deadline-urgent {
+            color: var(--danger);
+            font-weight: 500;
+        }
+
+        .deadline-normal {
+            color: var(--text-dark);
+        }
+
+        /* ============ ERP同步指示器 ============ */
+        .erp-sync-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.75rem;
+        }
+
+        .sync-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .sync-dot.synced { background: var(--success); }
+        .sync-dot.pending { background: var(--warning); }
+        .sync-dot.error { background: var(--danger); }
+
+        /* ============ 分頁樣式優化 ============ */
+        .pagination-section {
+            background: white;
+            padding: 1rem 1.5rem;
+        }
+
+        .pagination-info {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        
+        .page-link {
+            color: var(--text-dark);
+            border-color: var(--border-color);
+            margin: 0 2px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .page-link:hover {
+            color: var(--primary-blue);
+            background-color: #f0f9ff;
+            border-color: var(--primary-blue);
+        }
+        
+        .page-item.active .page-link {
+            background-color: var(--primary-blue);
+            border-color: var(--primary-blue);
+            color: white;
+        }
+        
+        .page-item.disabled .page-link {
+            color: #cbd5e1;
+            background-color: #f8fafc;
+            border-color: var(--border-color);
+        }
+
+        /* ========== 移除溢出限制 ========== */
+        .container-fluid {
+            overflow: visible !important;
+            position: static;
+        }
+
+        .main-content {
+            overflow: visible !important;
+            position: static;
+        }
+
+        .tab-pane .table-responsive {
+            padding-bottom: 0 !important;
+            margin-bottom: 0 !important;
+            overflow: visible !important;
+        }
+
+        .tab-pane .d-flex.justify-content-between {
+            position: relative;
+            z-index: 1;
+            padding: 0.8rem 1.5rem;
+            margin: 0;
+        }
+
+        .content-card .tab-content {
+            overflow: visible !important;
+            position: static;
+            margin: 0;
+            padding: 0;
+        }
+
+        .table-responsive {
+            position: static !important;
+            overflow: visible !important;
+            -webkit-overflow-scrolling: auto !important;
+        }
+
+        .content-card,
+        .tab-pane,
+        .table-responsive,
+        .container-fluid {
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+        }
+
+        .content-card::-webkit-scrollbar,
+        .tab-pane::-webkit-scrollbar,
+        .table-responsive::-webkit-scrollbar,
+        .container-fluid::-webkit-scrollbar {
+            display: none !important;
+        }
+
+        /* ============ 響應式設計 ============ */
+        @media (max-width: 768px) {
+            .search-filters {
+                grid-template-columns: 1fr;
+            }
+
+            .table-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .project-table {
+                font-size: 0.8rem;
+            }
+
+            .project-table th,
+            .project-table td {
+                padding: 0.5rem 0.25rem;
+            }
+
+            .pagination-section {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }

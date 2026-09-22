@@ -1,0 +1,109 @@
+/* 議價彙整頁面專用樣式 - 直接沿用投標資料彙整（integration.css）版面，
+   本檔僅補充「版本模型」相關的新增視覺（版次徽章、已修訂標示、鎖定banner） */
+
+/* ============ 版次資訊列 ============ */
+.version-info-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+.version-badge-group {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 8px;
+    padding: 0.35rem 0.7rem;
+}
+.version-badge-group .vlabel {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.75);
+}
+.version-badge-group .vvalue {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #fff;
+}
+.version-badge-group .vvalue.status-draft { color: #fde68a; }
+.version-badge-group .vvalue.status-locked { color: #86efac; }
+
+/* ============ 表格：版次欄位與已修訂標示 ============ */
+.version-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+}
+.version-chip {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #1e40af;
+    border: 1px solid #bfdbfe;
+}
+.version-chip.revised {
+    background: #fffbeb;
+    color: #b45309;
+    border-color: #fde68a;
+}
+.revised-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #f59e0b;
+    flex: 0 0 auto;
+    cursor: help;
+}
+
+/* ============ 基礎投標版次提示 ============ */
+.base-version-hint {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: #475569;
+    margin-bottom: 1rem;
+}
+.base-version-hint b { color: #1e40af; }
+
+/* ============ 鎖定狀態遮罩 ============ */
+.locked-banner {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #15803d;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+/* ============ 議價備註（比照專案備註樣式，無額外樣式需求，沿用 content-section 預設） ============ */
+
+/* ============ 議價版次選單（置於頁首版次徽章旁） ============ */
+#negVersionSelect {
+    cursor: pointer;
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 6px;
+    font-size: 0.8rem;
+    padding: 0.2rem 0.4rem;
+}
+#negVersionSelect option { color: #1e293b; }
+
+@media (max-width: 768px) {
+    .version-info-bar { flex-wrap: wrap; }
+}

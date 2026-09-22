@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <script>
+        window.ASSETS_PATH = '../../../';
+        window.SIDEBAR_TYPE = 'quotation-entry';
+        window.BREADCRUMBS = [
+            { name: '報價估算系統', link: '' },
+            { name: '薪資津貼設定', link: '' }
+        ];
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>良聯｜薪資津貼設定</title>
+    <link rel="shortcut icon" href="../../../assets/images/favicons/favicon.ico" type="image/x-icon">
+    <link href="../../../assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../../assets/css/all.min.css" rel="stylesheet">
+    <link href="../../../assets/css/master_style.css" rel="stylesheet">
+    <link href="salary.css" rel="stylesheet">
+</head>
+<body>
+    <div id="sidebar-placeholder"></div>
+
+    <div class="main-content" id="mainContent">
+        <div id="header-placeholder"></div>
+
+        <div class="container-fluid" style="padding: 2rem;">
+
+            <!-- 頁面標題 -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="fw-bold mb-2">薪資津貼設定</h3>
+                    <p class="text-muted mb-0">建立角色的基本薪資，並設定該角色在各地區的差旅與津貼基準</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-secondary" id="manageRegionsBtn">
+                        <i class="fas fa-map-marker-alt me-2"></i>管理地區清單
+                    </button>
+                    <button type="button" class="btn btn-primary" id="addRoleBtn">
+                        <i class="fas fa-plus me-2"></i>新增角色
+                    </button>
+                </div>
+            </div>
+
+            <div class="sts-table-container">
+
+                <!-- 搜尋與篩選 -->
+                <div class="sts-filters">
+                    <div>
+                        <label class="form-label">關鍵字搜尋</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted"><i class="fas fa-search"></i></span>
+                            <input type="text" class="form-control" id="searchKeyword" placeholder="角色中文名稱關鍵字...">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">角色英文名稱</label>
+                        <select class="form-select" id="searchRoleNameEn">
+                            <option value="">全部英文名稱</option>
+                        </select>
+                    </div>
+                    <div class="d-flex align-items-end">
+                        <button type="button" class="btn btn-outline-secondary w-100" id="clearFilterBtn">
+                            <i class="fas fa-times me-2"></i>清空條件
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table sts-table">
+                        <thead>
+                            <tr>
+                                <th class="sortable" onclick="SalaryTravelSettings.sortData('roleName')">
+                                    角色中文名稱 <i class="fas fa-sort" id="icon-roleName"></i>
+                                </th>
+                                <th class="sortable" onclick="SalaryTravelSettings.sortData('roleNameEn')">
+                                    角色英文名稱 <i class="fas fa-sort" id="icon-roleNameEn"></i>
+                                </th>
+                                <th class="sortable text-end" onclick="SalaryTravelSettings.sortData('monthlySalary')">
+                                    月薪 <i class="fas fa-sort" id="icon-monthlySalary"></i>
+                                </th>
+                                <th class="text-end">社會保險</th>
+                                <th class="text-end">二次成本</th>
+                                <th class="text-end">時薪</th>
+                                <th class="text-center">已設定地區數</th>
+                                <th class="sortable" onclick="SalaryTravelSettings.sortData('createdBy')">
+                                    建立人 <i class="fas fa-sort" id="icon-createdBy"></i>
+                                </th>
+                                <th class="sortable" onclick="SalaryTravelSettings.sortData('updatedAt')">
+                                    最後更新 <i class="fas fa-sort" id="icon-updatedAt"></i>
+                                </th>
+                                <th style="width: 110px;" class="text-center">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="roleTableBody"></tbody>
+                    </table>
+                </div>
+
+                <div id="noDataMessage" class="text-center py-5" style="display: none;">
+                    <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">沒有找到符合條件的角色</h5>
+                    <p class="text-muted small">請嘗試調整搜尋條件，或新增一個角色</p>
+                </div>
+
+                <div class="sts-pagination-section" id="paginationSection">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        <div class="d-flex align-items-center">
+                            <span class="text-muted me-3">每頁顯示</span>
+                            <select class="form-select form-select-sm me-3" style="width: auto;" id="pageSizeSelect" onchange="SalaryTravelSettings.changePageSize(this.value)">
+                                <option value="10" selected>10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                            </select>
+                            <span class="text-muted">筆，共 <span id="totalRecords">0</span> 筆</span>
+                        </div>
+                        <nav>
+                            <ul class="pagination pagination-sm mb-0" id="pagination"></ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增/編輯 角色 Modal -->
+    <div class="modal fade" id="roleEditModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="roleEditModalTitle">新增角色</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+
+                    <!-- 基本薪資（不分地區） -->
+                    <h6 class="fw-bold mb-3"><i class="fas fa-id-badge me-2"></i>基本資料</h6>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label">角色中文名稱 *</label>
+                            <input type="text" class="form-control" id="formRoleName" placeholder="例如：專案經理">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">角色英文名稱</label>
+                            <input type="text" class="form-control" id="formRoleNameEn" placeholder="例如：Site Manager">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">月薪 *</label>
+                            <input type="number" class="form-control" id="formMonthlySalary" placeholder="0">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">社會保險</label>
+                            <input type="number" class="form-control" id="formInsurance" placeholder="0">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">二次成本</label>
+                            <input type="number" class="form-control" id="formSecondCost" placeholder="0">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">時薪</label>
+                            <input type="number" class="form-control" id="formHourly" placeholder="0">
+                        </div>
+                    </div>
+
+                    <!-- 各地區差旅津貼：地區清單固定，統一由「管理地區清單」維護，這裡只填數字 -->
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="fw-bold mb-0"><i class="fas fa-map-marker-alt me-2"></i>各地區差旅津貼</h6>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table sts-region-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 22%;">地區</th>
+                                    <th style="width: 19.5%;">工地加班費</th>
+                                    <th style="width: 19.5%;">差旅工作津貼</th>
+                                    <th style="width: 19.5%;">伙食津貼</th>
+                                    <th style="width: 19.5%;">住宿津貼</th>
+                                </tr>
+                            </thead>
+                            <tbody id="regionRowsBody"></tbody>
+                        </table>
+                    </div>
+                    <p class="text-muted small mb-0">
+                        <i class="fas fa-circle-info me-1"></i>
+                        工地加班費／差旅工作津貼／伙食津貼／住宿津貼可以留空。地區清單所有角色共用，要新增或移除地區請用上方「管理地區清單」。
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="saveRoleBtn">儲存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 管理地區清單 Modal：所有角色共用同一份地區清單 -->
+    <div class="modal fade" id="regionManageModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">管理地區清單</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" id="newRegionName" placeholder="輸入新地區名稱，例如：東部">
+                        <button class="btn btn-outline-primary" type="button" id="addRegionBtn">
+                            <i class="fas fa-plus me-2"></i>新增
+                        </button>
+                    </div>
+                    <ul class="list-group" id="regionListBody"></ul>
+                    <p class="text-muted small mt-3 mb-0">
+                        <i class="fas fa-circle-info me-1"></i>
+                        新增地區後，所有角色都會自動出現這個地區的津貼欄位（預設留空）；移除地區會把所有角色裡這個地區的設定一併刪除，請先確認沒有角色還在用。
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">關閉</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../../assets/js/bootstrap.bundle.min.js"></script>
+    <script src="../../../assets/js/path_config.js"></script>
+    <script src="../../../assets/js/master_script.js"></script>
+    <script src="../../../assets/js/layout_loader.js"></script>
+    <script src="salary.js"></script>
+</body>
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        // 設定全域變數
+        window.ASSETS_PATH = '../../../';
+        window.SIDEBAR_TYPE = 'project';
+        window.BREADCRUMBS = [
+            { name: '報價估算系統', link: '../project-list/index.html' },
+            { name: '專案儀表板', link: '../project-dashboard/index.html' },    
+            { name: '工程間接成本', link: '' }
+        ];
+    </script>
+
+    <title>良聯｜工程間接成本</title>
+    <link rel="shortcut icon" href="../../../assets/images/favicons/favicon.ico" type="image/x-icon">
+    <link href="../../../assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../../assets/css/all.min.css" rel="stylesheet">
+    <link href="../../../assets/css/master_style.css" rel="stylesheet">
+    <link href="../../../modules/quotation/cost-detail/detail.css" rel="stylesheet">
+    <style>
+        /* 甘特圖特定樣式 */
+        .col-personnel { background-color: #f0f9ff; }
+        .col-price { background-color: #f8fafc; font-weight: 600; }
+        
+        .gantt-month-th {
+            background-color: #fef9c3 !important;
+            border-bottom: 2px solid #fde047 !important;
+        }
+
+        /* 解決滾動時月份表頭沒有跟著凍結的問題 */
+        .matrix-table thead tr:nth-child(1) th {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            height: 46px; 
+        }
+        .matrix-table thead tr:nth-child(2) th {
+            position: sticky;
+            top: 45px; 
+            z-index: 49;
+            height: 40px;
+        }
+        .matrix-table thead th.sticky-col,
+        .matrix-table thead th.sticky-col-7 {
+            z-index: 60 !important; 
+        }
+
+        /* 滿版模式時消除底部空白 */
+        #workbenchSection.fullscreen-mode .section-content {
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            padding: 0;
+        }
+        #workbenchSection.fullscreen-mode .matrix-mode-container {
+            max-height: none !important;
+            height: 100% !important;
+            flex: 1 1 auto;
+            margin: 0;
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+        <header class="estimation-header">
+            <div class="estimation-header-content">
+                <div class="estimation-info">
+                    <a href="../project-dashboard/index.html" class="back-btn">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>返回儀表板</span>
+                    </a>
+                    <div>
+                        <h1 class="product-title" id="pageTitle">工程間接成本</h1>
+                    </div>
+                </div>
+                <div class="estimation-actions">
+                    <!-- 新增匯出 Excel 按鈕 -->
+                    <button class="header-btn" onclick="IndirectCost.saveData()">
+                        <i class="fas fa-save"></i>
+                        <span>儲存</span>
+                    </button>
+                    <button class="header-btn" onclick="IndirectCost.exportToExcel()" style="background: #0284c7; border-color: #0284c7;">
+                        <i class="fas fa-file-excel"></i>
+                        <span>匯出 Excel</span>
+                    </button>
+                    <button class="header-btn primary" onclick="IndirectCost.completeEstimation()">
+                        <i class="fas fa-check"></i>
+                        <span>完成估算</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="estimation-content">
+            <!-- 資訊總覽面板 -->
+            <div class="content-section mt-4">
+                <div class="section-header">
+                    <h6 class="section-title"><i class="fas fa-sliders-h me-2"></i>專案資訊設定</h6>
+                    <span class="text-muted small">單位：新台幣 (NTD)</span>
+                </div>
+                
+                <div class="dashboard-body">
+                    <div class="row g-3">
+                        <div class="col-lg-2 col-md-4">
+                            <div class="info-field">
+                                <label class="info-label">工作地區 (薪資基準)</label>
+                                <select class="info-input fw-bold" id="projectRegion" onchange="IndirectCost.onRegionChange()" style="cursor: pointer;">
+                                    <option value="北部">北部</option>
+                                    <option value="中部">中部</option>
+                                    <option value="南部" selected>南部</option>
+                                    <option value="高雄同一區域">高雄同一區域</option>
+                                </select>
+                            </div>
+                        </div>
+                     
+                        <!-- 間接成本特有的排程區間 -->
+                        <div class="col-lg-2 col-md-4">
+                            <div class="info-field">
+                                <label class="info-label">排程開始</label>
+                                <input type="month" class="info-input" id="startDate" value="2025-11" onchange="IndirectCost.onDateChange()">
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-4">
+                            <div class="info-field">
+                                <label class="info-label">排程結束</label>
+                                <input type="month" class="info-input" id="endDate" value="2026-12" onchange="IndirectCost.onDateChange()">
+                            </div>
+                        </div>
+
+                        <div class="col-lg-2 col-md-4">
+                            <div class="info-field">
+                                <label class="info-label">估算日期</label>
+                                <input type="date" class="info-input" id="estimationDate">
+                            </div>
+                        </div>
+                        
+
+                        <!-- 工時單價計算 (改為 info-value 樣式) -->
+                        <div class="col-lg-2 col-md-4">
+                             <div class="info-field" style="background-color: #f8fafc;">
+                                <label class="info-label">工時單價 (NT$/Hr)</label>
+                                <div class="info-value" id="manHourUnitPriceDisplay">0</div>
+                            </div>
+                        </div>
+
+                        <!-- 總計金額 (amount-box) -->
+                        <div class="col-lg-2 col-md-4">
+                            <div class="amount-box">
+                                <label class="amount-label">間接成本總計</label>
+                                <div class="amount-value" id="grandTotalDisplay">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="content-section mt-4" id="workbenchSection">
+                <div class="section-header">
+                    <h6 class="section-title">
+                        <i class="fas fa-calculator"></i>
+                        間接成本與每月配置
+                    </h6>
+                </div>
+                
+                <div class="control-toolbar">
+                    <div class="toolbar-group">
+                        <button class="btn btn-primary" onclick="IndirectCost.addPersonnelItem()">
+                            <i class="fas fa-user-plus me-1"></i>新增專案人力
+                        </button>
+                        <button class="btn btn-outline-primary ms-2" onclick="IndirectCost.addOtherItem()">
+                            <i class="fas fa-plus me-1"></i>新增其他費用
+                        </button>
+                    </div>
+                    
+                    <div class="toolbar-group flex-grow-1 justify-content-center">
+                        <span class="toolbar-label"><i class="fas fa-sliders-h me-1"></i>批次設定：</span>
+                        
+                        <div class="input-group input-group-sm" style="width: 110px;">
+                            <span class="input-group-text bg-secondary text-white fw-bold">間接 %</span>
+                            <input type="number" class="form-control text-center fw-bold" id="globalIndirect" value="2" onchange="IndirectCost.applyGlobalRate('indirect', this.value)">
+                        </div>
+                        <div class="input-group input-group-sm" style="width: 110px;">
+                            <span class="input-group-text bg-success text-white fw-bold">利潤 %</span>
+                            <input type="number" class="form-control text-center fw-bold" id="globalProfit" value="5" onchange="IndirectCost.applyGlobalRate('profit', this.value)">
+                        </div>
+                        <div class="input-group input-group-sm" style="width: 110px;">
+                            <span class="input-group-text bg-warning text-dark fw-bold">風險 %</span>
+                            <input type="number" class="form-control text-center fw-bold" id="globalRisk" value="2" onchange="IndirectCost.applyGlobalRate('risk', this.value)">
+                        </div>
+                        
+                        <div class="input-group input-group-sm" style="width: 110px;">
+                            <span class="input-group-text bg-danger text-white fw-bold">議價 %</span>
+                            <input type="number" class="form-control text-center fw-bold" id="globalNeg" value="2" onchange="IndirectCost.applyGlobalRate('negotiation', this.value)">
+                        </div>
+                    </div>
+                    
+                    <div class="toolbar-group">
+                        <button class="btn btn-outline-secondary" id="fullscreenBtn" onclick="IndirectCost.toggleFullscreen()">
+                            <i class="fas fa-expand"></i> 滿版編輯
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="section-content p-0">
+                    <div class="table-container matrix-mode-container">
+                        <table class="estimation-table matrix-table" id="mainTable">
+                            <thead id="estimationTableHeader"></thead>
+                            <tbody id="estimationTableBody"></tbody>
+                            <tfoot>
+                                <tr class="total-row" id="estimationTableFooter"></tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-section mt-4" id="scheduleSection">
+                <div class="section-header">
+                    <h6 class="section-title">
+                        <i class="fas fa-project-diagram"></i>
+                        工程進度規劃
+                    </h6>
+                    <div class="toolbar-group flex-grow-1 justify-content-center">
+                        <span class="text-muted small"><i class="fas fa-info-circle me-1"></i>以下工程項目自動由「成本估算表」帶入，請設定各項工程的「開始」與「結束」月份，系統將自動繪製右側的甘特圖藍色線條。</span>
+                    </div>
+                </div>
+                <div class="section-content p-0">
+                    <div class="table-container matrix-mode-container">
+                        <table class="estimation-table matrix-table" id="scheduleTable">
+                            <thead id="scheduleTableHeader"></thead>
+                            <tbody id="scheduleTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <div class="section-header">
+                     <h6 class="section-title"><i class="fas fa-file-alt me-2"></i>備註欄</h6>
+                </div>
+                <div class="section-content p-4">
+                    <textarea class="form-control" id="projectRemarks" rows="4" placeholder="請輸入工程間接成本備註..."></textarea>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="modal fade" id="historyPriceModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title">歷史單價查詢</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3 p-3 bg-light rounded border">
+                        <div class="row g-2">
+                            <div class="col-md-6"><span class="text-muted small">查詢品名：</span><span class="fw-bold" id="historyItemName">-</span></div>
+                            <div class="col-md-6"><span class="text-muted small">項目代號：</span><span class="fw-bold" id="historyItemMatNo">-</span></div>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered align-middle">
+                            <thead class="table-light">
+                                <tr><th>採購日期</th><th>供應商</th><th>專案編號</th><th class="text-end">單價</th><th>備註</th><th class="text-center">選擇</th></tr>
+                            </thead>
+                            <tbody id="historyTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../../assets/js/xlsx.full.min.js"></script>
+    <script src="../../../assets/js/bootstrap.bundle.min.js"></script>
+    <script src="../../../assets/js/path_config.js"></script>
+    <script src="../../../assets/js/master_script.js"></script>
+    <script src="../../../assets/js/layout_loader.js"></script>
+    <!-- 原本腳本 -->
+    <script src="indirect.js"></script>
+    <script src="excel_export.js"></script>
+</body>
+</html>

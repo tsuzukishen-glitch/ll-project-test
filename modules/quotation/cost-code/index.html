@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <script>
+        window.ASSETS_PATH = '../../../';
+        window.SIDEBAR_TYPE = 'quotation-entry';
+        window.BREADCRUMBS = [
+            { name: '報價估算系統', link: '' },
+            { name: '成本代碼設定', link: '' }
+        ];
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>良聯｜成本代碼設定</title>
+    <link rel="shortcut icon" href="../../../assets/images/favicons/favicon.ico" type="image/x-icon">
+    <link href="../../../assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../../assets/css/all.min.css" rel="stylesheet">
+    <link href="../../../assets/css/master_style.css" rel="stylesheet">
+    <link href="code.css" rel="stylesheet">
+</head>
+<body>
+    <div id="sidebar-placeholder"></div>
+
+    <div class="main-content" id="mainContent">
+        <div id="header-placeholder"></div>
+
+        <div class="container-fluid" style="padding: 2rem;">
+
+            <!-- 頁面標題 -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="fw-bold mb-2">成本代碼設定</h3>
+                    <p class="text-muted mb-0">維護產品代碼、成本歸屬與成本碼的對應關係，供估算工作台與範本編輯器使用</p>
+                </div>
+                <button type="button" class="btn btn-primary" id="addBtn">
+                    <i class="fas fa-plus me-2"></i>新增成本碼
+                </button>
+            </div>
+
+            <div class="ccs-table-container">
+
+                <!-- 搜尋與篩選 -->
+                <div class="search-filters ccs-search-filters">
+                    <div>
+                        <label class="form-label">關鍵字搜尋</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted"><i class="fas fa-search"></i></span>
+                            <input type="text" class="form-control" id="searchKeyword" placeholder="成本碼或成本描述關鍵字...">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">產品代碼</label>
+                        <select class="form-select" id="filterProductCode">
+                            <option value="">全部產品</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">成本歸屬代碼</label>
+                        <select class="form-select" id="filterAttrCode">
+                            <option value="">全部歸屬</option>
+                        </select>
+                    </div>
+                    <div class="d-flex align-items-end">
+                        <button type="button" class="btn btn-outline-secondary w-100" id="clearFilterBtn">
+                            <i class="fas fa-times me-2"></i>清空條件
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table ccs-table">
+                        <thead>
+                            <tr>
+                                <th class="sortable" onclick="CostCodeSettings.sortData('productCode')">
+                                    產品代碼 <i class="fas fa-sort" id="icon-productCode"></i>
+                                </th>
+                                <th class="sortable" onclick="CostCodeSettings.sortData('productName')">
+                                    產品名稱 <i class="fas fa-sort" id="icon-productName"></i>
+                                </th>
+                                <th class="sortable" onclick="CostCodeSettings.sortData('attrCode')">
+                                    成本歸屬代碼 <i class="fas fa-sort" id="icon-attrCode"></i>
+                                </th>
+                                <th class="sortable" onclick="CostCodeSettings.sortData('attrName')">
+                                    成本歸屬名稱 <i class="fas fa-sort" id="icon-attrName"></i>
+                                </th>
+                                <th class="sortable" onclick="CostCodeSettings.sortData('costCode')">
+                                    成本碼 <i class="fas fa-sort" id="icon-costCode"></i>
+                                </th>
+                                <th class="sortable" onclick="CostCodeSettings.sortData('costDesc')">
+                                    成本描述 <i class="fas fa-sort" id="icon-costDesc"></i>
+                                </th>
+                                <th class="sortable" onclick="CostCodeSettings.sortData('accountCode')">
+                                    在建會科 <i class="fas fa-sort" id="icon-accountCode"></i>
+                                </th>
+                                <th class="sortable" onclick="CostCodeSettings.sortData('createdBy')">
+                                    建立人 <i class="fas fa-sort" id="icon-createdBy"></i>
+                                </th>
+                                <th class="sortable" onclick="CostCodeSettings.sortData('updatedAt')">
+                                    最後更新 <i class="fas fa-sort" id="icon-updatedAt"></i>
+                                </th>
+                                <th style="width: 110px;" class="text-center">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ccsTableBody"></tbody>
+                    </table>
+                </div>
+
+                <div id="loadingMessage" class="text-center py-5" style="display: none;">
+                    <div class="spinner-border text-primary mb-3" role="status"></div>
+                    <p class="text-muted mb-0">查詢中，資料量較大請稍候...</p>
+                </div>
+
+                <div id="noDataMessage" class="text-center py-5" style="display: none;">
+                    <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">沒有找到符合條件的成本碼</h5>
+                    <p class="text-muted small">請嘗試調整搜尋條件，或新增一筆成本碼</p>
+                </div>
+
+                <div class="pagination-section" id="paginationSection">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        <div class="d-flex align-items-center">
+                            <span class="text-muted me-3">每頁顯示</span>
+                            <select class="form-select form-select-sm me-3" style="width: auto;" id="pageSizeSelect" onchange="CostCodeSettings.changePageSize(this.value)">
+                                <option value="10">10</option>
+                                <option value="25" selected>25</option>
+                                <option value="50">50</option>
+                            </select>
+                            <span class="text-muted">筆，共 <span id="totalRecords">0</span> 筆</span>
+                        </div>
+                        <nav>
+                            <ul class="pagination pagination-sm mb-0" id="pagination"></ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增/編輯 Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalTitle">新增成本碼</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">產品代碼 *</label>
+                            <input type="text" class="form-control" id="formProductCode" list="productCodeOptions" placeholder="例如：EB">
+                            <datalist id="productCodeOptions"></datalist>
+                        </div>
+                        <div class="col-md-9">
+                            <label class="form-label">產品名稱 *</label>
+                            <input type="text" class="form-control" id="formProductName" placeholder="例如：建築">
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">成本歸屬代碼 *</label>
+                            <input type="text" class="form-control" id="formAttrCode" list="attrCodeOptions" placeholder="例如：X">
+                            <datalist id="attrCodeOptions"></datalist>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label">成本歸屬名稱 *</label>
+                            <input type="text" class="form-control" id="formAttrName" placeholder="例如：專案管理">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">在建會科 *</label>
+                            <input type="text" class="form-control" id="formAccountCode" placeholder="例如：1253A03">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">成本碼 *</label>
+                            <input type="text" class="form-control" id="formCostCode" placeholder="例如：DEBX00H00">
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label">成本描述 *</label>
+                            <input type="text" class="form-control" id="formCostDesc" placeholder="例如：MOM(會議紀錄)">
+                        </div>
+                    </div>
+                    <p class="text-muted small mt-3 mb-0">
+                        <i class="fas fa-circle-info me-1"></i>
+                        輸入已存在的產品代碼／成本歸屬代碼時，會自動帶出對應的名稱與在建會科，可再自行調整。
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="saveBtn">儲存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../../assets/js/bootstrap.bundle.min.js"></script>
+    <script src="../../../assets/js/path_config.js"></script>
+    <script src="../../../assets/js/master_script.js"></script>
+    <script src="../../../assets/js/layout_loader.js"></script>
+    <script src="code.js"></script>
+</body>
+</html>

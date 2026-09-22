@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <script>
+        window.ASSETS_PATH = '../../../';
+        window.SIDEBAR_TYPE = 'project'; // ★ 切換為專案側邊欄
+        
+        window.BREADCRUMBS = [
+            { name: '報價估算系統', link: '' }, // 分類
+            { name: '專案列表', link: '../project-list/index.html' }, // 可點擊返回列表
+            { name: '專案儀表板', link: '' }
+        ];
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>良聯｜報價估算系統</title>
+    <link rel="shortcut icon" href="../../../assets/images/favicons/favicon.ico" type="image/x-icon">
+    <!-- 引用本地 Bootstrap CSS -->
+    <link href="../../../assets/css/bootstrap.min.css" rel="stylesheet">
+    <!-- 引用本地 Font Awesome CSS -->
+    <link href="../../../assets/css/all.min.css" rel="stylesheet">
+    <!-- 母版樣式 -->
+    <link href="../../../assets/css/master_style.css" rel="stylesheet">
+    <!-- 專案儀表板樣式 -->
+    <link href="dashboard.css" rel="stylesheet">
+</head>
+<body>
+    <!-- 側邊欄 -->
+    <div id="sidebar-placeholder"></div>
+    <!-- 側邊欄由 JavaScript 動態生成 -->
+
+    <!-- 主內容區 -->
+    <div class="main-content" id="mainContent">
+        <!-- 頂部導航 -->
+        <div id="header-placeholder"></div>
+        <!-- 頂部導航由 JavaScript 動態生成 -->
+
+        <!-- 主要內容 -->
+        <div class="container-fluid" style="padding: 2rem;">
+            <!-- 專案標題區域 (資料由 JS 動態載入) -->
+            <div class="project-header">
+                <div class="project-status" id="headerStatus">載入中...</div>
+                <h1 class="project-title" id="headerTitle">載入中...</h1>
+                <p class="mb-0" id="headerDesc">...</p>
+                
+                <div class="project-meta">
+                    <!-- 1. 報價編號 -->
+                    <div class="meta-item">
+                        <div class="meta-icon">
+                            <i class="fas fa-file-invoice"></i>
+                        </div>
+                        <div>
+                            <small style="opacity: 0.6;">報價編號</small>
+                            <div class="fw-bold" id="headerQuotationId">-</div>
+                        </div>
+                    </div>
+                    <!-- 2. 專案編號 -->
+                    <div class="meta-item">
+                        <div class="meta-icon">
+                            <i class="fas fa-hashtag"></i>
+                        </div>
+                        <div>
+                            <small style="opacity: 0.6;">專案編號</small>
+                            <div class="fw-bold" id="headerProjectId">-</div>
+                        </div>
+                    </div>
+                    <!-- 3. 業主名稱 -->
+                    <div class="meta-item">
+                        <div class="meta-icon">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <div>
+                            <small style="opacity: 0.6;">業主名稱</small>
+                            <div class="fw-bold" id="headerOwner">-</div>
+                        </div>
+                    </div>
+                    <!-- 4. 客戶名稱 -->
+                    <div class="meta-item">
+                        <div class="meta-icon">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <div>
+                            <small style="opacity: 0.6;">客戶名稱</small>
+                            <div class="fw-bold" id="headerCustomer">-</div>
+                        </div>
+                    </div>
+                    <!-- 5. 投標日期 -->
+                    <div class="meta-item">
+                        <div class="meta-icon">
+                            <i class="fas fa-calendar"></i>
+                        </div>
+                        <div>
+                            <small style="opacity: 0.6;">投標日期</small>
+                            <div class="fw-bold" id="headerBidDate">-</div>
+                        </div>
+                    </div>
+                    <!-- 6. 投標剩餘天數 -->
+                    <div class="meta-item">
+                        <div class="meta-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div>
+                            <small style="opacity: 0.6;">投標剩餘天數</small>
+                            <div class="fw-bold" id="headerRemainingDays">-</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 作業區塊：投標前 -->
+            <h5 class="mb-4 text-primary fw-bold">
+                <i class="fas fa-clipboard-list me-2"></i>估算作業
+            </h5>
+
+            <!-- 功能模組區域 -->
+            <div class="module-grid">
+                <!-- 報價授權單 -->
+                <div class="module-card erp-auth" onclick="openERPAuth()">
+                    <div class="module-header">
+                        <div class="module-title">
+                            <div class="module-icon">
+                                <i class="fas fa-file-contract"></i>
+                            </div>
+                            報價授權單
+                        </div>
+                        <span class="module-status status-completed">已完成</span>
+                    </div>
+                    <div class="module-content">
+                        ERP報價授權單已通過董事長核可，專案正式啟動，可開始進行成本估算作業。
+                    </div>
+                </div>
+
+                <!-- 專案邀標單資料 -->
+                <div class="module-card basic-data" onclick="openBasicData()">
+                    <div class="module-header">
+                        <div class="module-title">
+                            <div class="module-icon">
+                                <i class="fas fa-edit"></i>
+                            </div>
+                            邀標單資料
+                        </div>
+                        <span class="module-status status-completed">已完成</span>
+                    </div>
+                    <div class="module-content">
+                        編輯專案邀標單資料，上傳文件，管理產品清單與相關技術資料。
+                    </div>
+                </div>
+
+                <!-- 成本估算作業 -->
+                <div class="module-card cost-estimation" onclick="openCostEstimation()">
+                    <div class="module-header">
+                        <div class="module-title">
+                            <div class="module-icon">
+                                <i class="fas fa-calculator"></i>
+                            </div>
+                            成本估算作業
+                        </div>
+                        <span class="module-status status-in-progress">進行中</span>
+                    </div>
+                    <div class="module-content">
+                        分產品進行材料費用與製作費用估算，設定利潤率與風險率，計算總成本。
+                    </div>
+                </div>
+
+                <!-- 間接成本 -->
+                <div class="module-card cost-indirect" onclick="openProjectIndirect()">
+                    <div class="module-header">
+                        <div class="module-title">
+                            <div class="module-icon">
+                                <i class="fas fa-industry"></i>
+                            </div>
+                            人力間接成本
+                        </div>
+                         <span class="module-status status-in-progress">進行中</span>
+                    </div>
+                    <div class="module-content">
+                        管理監造人力間接成本，包含專案人力等項目的間接費用計算與成本評估。
+                    </div>
+                </div>
+
+                <!-- 成本發包計劃 -->
+                <div class="module-card procurement-plan" onclick="openProcurementPlan()">
+                    <div class="module-header">
+                        <div class="module-title">
+                            <div class="module-icon">
+                                <i class="fas fa-file-upload"></i>
+                            </div>
+                            成本發包計劃
+                        </div>
+                        <span class="module-status status-in-progress">進行中</span>
+                    </div>
+                    <div class="module-content">
+                        上傳與管理成本發包計劃初步報價，包含發包施工說明、廠商資訊及報價金額等資料。
+                    </div>
+                </div>
+
+                <!-- 工程估價作業 -->
+                <div class="module-card construction-estimation" onclick="openConstructionEstimation()">
+                    <div class="module-header">
+                        <div class="module-title">
+                            <div class="module-icon">
+                                <i class="fas fa-calculator"></i>
+                            </div>
+                            工程估算作業
+                        </div>
+                         <span class="module-status status-in-progress">進行中</span>
+                    </div>
+                    <div class="module-content">
+                        進行各工種估算，包含土木工程、安裝工程、油漆工程等項目的工程量計算與成本評估。
+                    </div>
+                </div>
+                
+                <!-- 工程間接成本 -->
+                <div class="module-card construction-indirect" onclick="openConstructionIndirect()">
+                    <div class="module-header">
+                        <div class="module-title">
+                            <div class="module-icon">
+                                <i class="fas fa-industry"></i>
+                            </div>
+                            工程間接成本
+                        </div>
+                         <span class="module-status status-in-progress">進行中</span>
+                    </div>
+                    <div class="module-content">
+                        管理各工種的間接成本，包含土木工程、安裝工程、油漆工程等項目的間接費用計算與成本評估。
+                    </div>
+                </div>
+
+                <!-- 工程發包計劃 -->
+                <div class="module-card construction-estimation" onclick="openConstructionProcurementPlan()">
+                    <div class="module-header">
+                        <div class="module-title">
+                            <div class="module-icon">
+                                <i class="fas fa-file-upload"></i>
+                            </div>
+                            工程發包計劃
+                        </div>
+                        <span class="module-status status-in-progress">進行中</span>
+                    </div>
+                    <div class="module-content">
+                        上傳與管理工程發包計劃初步報價，包含發包施工說明、廠商資訊及報價金額等資料。
+                    </div>
+                </div>
+
+                <!-- 投標資料彙整 -->
+                <div class="module-card bid-integration" onclick="openBidIntegration()">
+                    <div class="module-header">
+                        <div class="module-title">
+                            <div class="module-icon">
+                                <i class="fas fa-file-contract"></i>
+                            </div>
+                            估算價格檢討
+                        </div>
+                        <span class="module-status status-in-progress">進行中</span>
+                    </div>
+                    <div class="module-content">
+                        彙整所有估算結果與間接成本，產生最終投標文件與報價單。
+                    </div>
+                </div>
+
+                <!-- 議價資料彙整 -->
+                <div class="module-card post-award" onclick="openNegotiationSummary()">
+                    <div class="module-header">
+                        <div class="module-title">
+                            <div class="module-icon">
+                                <i class="fas fa-comments-dollar"></i>
+                            </div>
+                            議價價格檢討
+                        </div>
+                        <span class="module-status status-in-progress">進行中</span>
+                    </div>
+                    <div class="module-content">
+                        依業主線下議價結果進行議價作業，彙整議價後產生報價單並轉入專案預算管理。
+                    </div>
+                </div>
+
+                <!-- 發包採購詢價
+                <div class="module-card post-award" onclick="">
+                    <div class="module-header">
+                        <div class="module-title">
+                            <div class="module-icon">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                            發包採購詢價
+                        </div>
+                        <span class="module-status status-in-progress">進行中</span>
+                    </div>
+                    <div class="module-content">
+                        管理得標後的發包採購詢價、二次詢議價作業。
+                    </div>
+                </div> -->
+                
+                <!-- 專案預算管理 -->
+                <div class="module-card post-award" onclick="openPostAward()">
+                    <div class="module-header">
+                        <div class="module-title">
+                            <div class="module-icon">
+                                <i class="fas fa-sack-dollar"></i>
+                            </div>
+                            專案預算管理
+                        </div>
+                        <span class="module-status status-in-progress">進行中</span>
+                    </div>
+                    <div class="module-content">
+                        管理得標後的專案預算，將估算資料整理為材料／人工／直接費／外包發包預算表。
+                    </div>
+                </div>
+                <div></div>
+                <div></div>
+             </div>     
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="../../../assets/js/bootstrap.bundle.min.js"></script>
+    <!-- 路徑配置工具 -->
+    <script src="../../../assets/js/path_config.js"></script>
+    <!-- 母版腳本 -->
+    <script src="../../../assets/js/master_script.js"></script>
+    <!-- 側邊欄+頂部導航 JavaScript -->
+    <script src="../../../assets/js/layout_loader.js"></script>
+    <!-- 專案儀表板 JavaScript -->
+    <script src="dashboard.js"></script>
+</body>
+</html>

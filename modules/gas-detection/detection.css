@@ -1,0 +1,283 @@
+/* modules/gas-detection/gas_style.css */
+
+/* --- 氣體偵測系統專用樣式 (Leaflet 版) --- */
+
+.map-container {
+    width: 100%;
+    height: 500px; 
+    background: #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+    z-index: 1; 
+}
+
+.sensor-point {
+    position: relative; 
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+}
+
+/* ★ 修改：燈號本體包含代號並置中 */
+.sensor-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50% !important; /* 強制圓形 */
+    background-color: #94a3b8; 
+    border: 3px solid white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    position: relative;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 800;
+    color: white;
+    line-height: 1;
+    box-sizing: border-box;
+    transform-origin: center center;
+}
+
+.sensor-label {
+    position: absolute;
+    bottom: 100%; 
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(30, 41, 59, 0.9);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    pointer-events: none;
+    z-index: 100;
+    margin-bottom: 8px;
+}
+
+.sensor-point:hover .sensor-dot { transform: scale(1.15); }
+.sensor-point:hover .sensor-label { opacity: 1; visibility: visible; }
+
+/* 狀態顏色 */
+.sensor-point.status-normal .sensor-dot { background-color: var(--success); }
+.sensor-point.status-alarm .sensor-dot {
+    background-color: var(--danger);
+    animation: flash-alarm 1s infinite;
+}
+
+@keyframes flash-alarm {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.15); box-shadow: 0 0 15px var(--danger); }
+}
+
+/* ★ 新增：全站共用的正圓形代號標示 */
+.circle-badge {
+    border-radius: 50% !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.list-badge {
+    width: 28px;
+    height: 28px;
+    border-radius: 50% !important;
+    background: var(--primary-blue);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 12px;
+    font-size: 0.9rem;
+}
+
+.sensor-list-card {
+    height: 500px; 
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+
+.sensor-list-header {
+    padding: 1rem;
+    background: var(--light-bg);
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sensor-list-body { flex: 1; overflow-y: auto; padding: 0; }
+
+.sensor-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.sensor-item:hover { background-color: #f8fafc; }
+.sensor-info { flex: 1; }
+.sensor-name { font-weight: 600; color: var(--text-dark); font-size: 0.95rem; margin-bottom: 2px; }
+.sensor-location { font-size: 0.8rem; color: var(--text-muted); }
+.sensor-value-box { text-align: right; min-width: 80px; }
+.sensor-value { font-size: 1.25rem; font-weight: 700; font-family: 'Roboto Mono', monospace; display: block; }
+.sensor-unit { font-size: 0.75rem; color: var(--text-muted); }
+
+/* 列表狀態色 */
+.sensor-item.status-normal .list-badge { background-color: var(--success); }
+.sensor-item.status-normal .sensor-value { color: var(--success); }
+
+.sensor-item.status-alarm { background-color: #fef2f2; }
+.sensor-item.status-alarm .list-badge { background-color: var(--danger); animation: flash-bg 1s infinite;}
+.sensor-item.status-alarm .sensor-value { color: var(--danger); font-weight: 800; }
+
+@keyframes flash-alarm {
+    0%, 100% { 
+        opacity: 1; 
+        transform: scale(1); 
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3); /* 補上原本的陰影基準 */
+    }
+    50% { 
+        opacity: 0.8; 
+        transform: scale(1.15); 
+        /* 讓紅色發光陰影也保留 2px 的垂直位移，避免視覺產生上下跳動 */
+        box-shadow: 0 2px 15px var(--danger); 
+    }
+}
+
+.abnormal-list-card {
+    min-height: 250px;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+
+.animate-blink { animation: text-blink 1.5s infinite; }
+
+@keyframes text-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+/* 手機版警報視窗專用樣式 */
+.mobile-alert-content {
+    border: none;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.mobile-alert-header {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    padding: 2rem 1rem;
+    text-align: center;
+    border-bottom: 4px solid var(--danger);
+}
+
+.mobile-badge {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    border-radius: 50% !important; /* 確保圓形 */
+    background: var(--danger);
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.mobile-value-box {
+    background: white;
+    border: 2px solid #fecaca;
+    border-radius: 15px;
+    padding: 1.5rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.mobile-value {
+    font-size: 3.5rem;
+    font-weight: 900;
+    line-height: 1;
+    font-family: 'Roboto Mono', monospace;
+}
+
+.mobile-map-container {
+    height: 150px;
+    background: #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #cbd5e1;
+}
+
+/* 複寫設定頁籤的外觀 */
+.nav-pills .nav-link {
+    color: var(--text-dark) !important;
+    transition: all 0.2s;
+}
+.nav-pills .nav-link.active, .nav-pills .show>.nav-link {
+    background-color: var(--primary-blue) !important;
+    color: white !important;
+}
+
+/* ★ 新增：通報人員標籤與搜尋下拉選單專用樣式 */
+.notifier-tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    min-height: 45px;
+    padding: 0.5rem;
+    border: 1px dashed #cbd5e1;
+    border-radius: 6px;
+    background: #f8fafc;
+    align-items: center;
+}
+
+.notifier-tag {
+    display: inline-flex;
+    align-items: center;
+    background: var(--primary-blue);
+    color: white;
+    padding: 0.3rem 0.6rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    animation: scaleIn 0.2s ease-out;
+}
+
+@keyframes scaleIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.notifier-tag .remove-tag {
+    margin-left: 0.5rem;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.notifier-tag .remove-tag:hover {
+    opacity: 1;
+}
+
+.notifier-dropdown.show {
+    display: block;
+}

@@ -1,0 +1,112 @@
+/* modules/quotation/erp-auth/auth.css */
+
+/* 表單卡片 */
+.auth-form-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+/* 分區標題 */
+.section-divider {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.section-divider:not(:first-child) {
+    margin-top: 1rem;
+}
+
+.section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--primary-blue);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* 唯讀表單欄位樣式 */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.form-control-plaintext {
+    display: block;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.5;
+    color: var(--text-dark);
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    pointer-events: none; /* 禁止點擊，強化唯讀感 */
+    min-height: 45px; /* 統一高度 */
+}
+
+/* 多行文字區塊 */
+.form-control-plaintext.multiline {
+    min-height: 100px;
+    white-space: pre-wrap; /* 保留換行 */
+}
+
+/* 表格美化樣式 (新增) */
+.custom-table-container {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.custom-table {
+    margin-bottom: 0 !important;
+}
+
+.custom-table thead th {
+    background-color: var(--light-bg);
+    color: var(--text-dark);
+    font-weight: 700;
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem;
+    font-size: 0.95rem;
+}
+
+.custom-table tbody td {
+    padding: 1rem;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.custom-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.custom-table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+/* 響應式 */
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1.5rem;
+    }
+}

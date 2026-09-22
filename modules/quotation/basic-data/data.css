@@ -1,0 +1,326 @@
+/* modules/quotation/basic-data/data.css */
+
+/* content-card 共用樣式 */
+.content-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.card-header {
+    background: var(--light-bg);
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.card-body {
+    flex: 1;
+    overflow: hidden; /* 內部使用 table-responsive */
+    padding: 0;
+    position: relative;
+}
+
+/* 檔案列表樣式 */
+.file-list {
+    min-height: 200px;
+    overflow-y: auto;
+    height: 100%;
+}
+
+.file-item {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    transition: background-color 0.2s;
+    cursor: pointer;
+}
+
+.file-item:last-child {
+    border-bottom: none;
+}
+
+.file-item:hover {
+    background-color: #f8fafc;
+}
+
+.file-item.active {
+    background-color: #eff6ff;
+    border-left: 3px solid var(--primary-blue);
+}
+
+.file-icon {
+    font-size: 1.5rem;
+    margin-right: 1rem;
+    color: var(--text-muted);
+}
+
+.file-icon .fa-puzzle-piece { color: #06b6d4; } /* 範本圖示顏色 */
+.file-icon .fa-history { color: #64748b; } /* 歷史圖示顏色 */
+
+.file-info {
+    flex: 1;
+    overflow: hidden;
+}
+
+.file-name {
+    font-weight: 500;
+    color: var(--text-dark);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 0.2rem;
+}
+
+.file-meta {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* 標單分配表格樣式 */
+.assignment-table th {
+    background: #f1f5f9;
+    font-weight: 600;
+    color: var(--text-dark);
+    padding: 0.75rem 1rem;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.assignment-table td {
+    padding: 0.5rem 1rem; /* 稍微縮小 padding */
+    vertical-align: middle;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* === 標單項目指派區：不設內層捲動，改用整頁（視窗）捲動，工具列改為相對於視窗浮動釘住 === */
+.assignment-panel {
+    height: auto; /* 內容多高就佔多高，交由整頁捲動 */
+    overflow: visible; /* 解除 .content-card 預設的 overflow: hidden，讓 sticky 能吃到 viewport */
+}
+
+.assignment-panel .card-body {
+    overflow: visible; /* 同上，解除 .card-body 預設的 overflow: hidden */
+}
+
+.assignment-scroll-container {
+    /* 不再設定 max-height / overflow-y，僅作為排版容器 */
+}
+
+/* === 批次指派工具列 === */
+.batch-toolbar {
+    display: none; /* 由 JS 控制，有勾選項目時切為 flex */
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 1.25rem;
+    background: #eff6ff;
+    border-bottom: 1px solid #dbeafe;
+    animation: fadeIn 0.15s ease;
+    position: sticky;
+    /* 若頁面頂部的 top-header 是 fixed/sticky，這裡要改成該 header 的高度，
+       避免工具列被蓋住；目前先假設頂部無遮擋，設為 0 */
+    top: 0;
+    z-index: 20;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+}
+
+.batch-toolbar-text {
+    font-size: 0.9rem;
+    color: var(--text-dark);
+}
+
+.batch-toolbar-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.row-checkbox {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+    accent-color: var(--primary-blue);
+}
+
+/* 批次指派下拉最下方的套用按鈕列 */
+.portal-dropdown-apply {
+    padding: 0.5rem 0.75rem 0.25rem;
+}
+
+/* 分類標題行 */
+.category-row {
+    background-color: #e2e8f0;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.category-row td {
+    padding: 0.5rem 1rem;
+}
+
+/* === 改良版：多選觸發器 (Trigger) === */
+.multi-select-trigger {
+    background: white;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 38px;
+    transition: all 0.2s;
+    width: 100%;
+}
+
+.multi-select-trigger:hover {
+    border-color: var(--primary-blue);
+    background-color: #f8fafc;
+}
+
+.multi-select-trigger.active {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 2px rgba(30, 64, 175, 0.1);
+}
+
+.multi-select-text.placeholder {
+    color: #ffffff;
+    font-size: 0.85rem;
+}
+
+/* 標籤樣式 */
+.unit-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.unit-tag {
+    background: #eff6ff;
+    color: var(--primary-blue);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* === 全局浮動下拉選單 (Portal Dropdown) === */
+.portal-dropdown {
+    position: fixed; 
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    z-index: 9999;
+    min-width: 220px;
+    padding: 0.5rem 0;
+    display: none;
+    max-height: 300px;
+    overflow-y: auto;
+    animation: fadeIn 0.2s ease;
+}
+
+.portal-dropdown.show {
+    display: block;
+}
+
+.portal-dropdown-header {
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    border-bottom: 1px solid #f1f5f9;
+    margin-bottom: 0.25rem;
+}
+
+.multi-select-option {
+    padding: 0.6rem 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: background 0.2s;
+}
+
+.multi-select-option:hover {
+    background-color: #f1f5f9;
+}
+
+.multi-select-option input[type="checkbox"] {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+    accent-color: var(--primary-blue);
+}
+
+.multi-select-option label {
+    cursor: pointer;
+    font-size: 0.9rem;
+    flex: 1;
+    margin: 0;
+    color: var(--text-dark);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 空狀態 */
+.empty-state-small {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* 資料完整度圓環 (Header用) */
+.completeness-wrapper {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* ================== Modal 專屬樣式新增 ================== */
+.custom-modal-table-container {
+    max-height: 400px; 
+    overflow-y: auto;
+}
+
+.custom-modal-table-container th {
+    background-color: #f8fafc;
+    z-index: 1; /* 確保 sticky-top 正確顯示 */
+}
+
+/* 數字輸入框美化 */
+.qty-input {
+    width: 80px;
+    text-align: center;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.qty-input:focus {
+    border-color: var(--primary-blue);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(30, 64, 175, 0.1);
+}
+
+.qty-input:disabled {
+    background-color: #f1f5f9;
+    color: #94a3b8;
+    border-color: #e2e8f0;
+}

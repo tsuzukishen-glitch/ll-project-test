@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <script>
+        window.ASSETS_PATH = '../../../';
+        window.SIDEBAR_TYPE = 'quotation-entry';
+        
+        window.BREADCRUMBS = [
+            { name: '報價估算系統', link: '' }, // 分類
+            { name: '專案列表', link: '' }
+        ];
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>良聯｜報價估算系統</title>
+    <link rel="shortcut icon" href="../../../assets/images/favicons/favicon.ico" type="image/x-icon">
+    <!-- 引用本地 Bootstrap CSS -->
+    <link href="../../../assets/css/bootstrap.min.css" rel="stylesheet">
+    <!-- 引用本地 Font Awesome CSS -->
+    <link href="../../../assets/css/all.min.css" rel="stylesheet">
+    <!-- 引用本地 Flatpickr CSS -->
+    <link href="../../../assets/css/flatpickr.min.css" rel="stylesheet">
+    <!-- 母版樣式 -->
+    <link href="../../../assets/css/master_style.css" rel="stylesheet">
+    <!-- 專案列表樣式 -->
+    <link href="list.css" rel="stylesheet">
+</head>
+<body>
+    <!-- 側邊欄 -->
+    <div id="sidebar-placeholder"></div>
+    <!-- 側邊欄由 JavaScript 動態生成 -->
+
+    <!-- 主內容區 -->
+    <div class="main-content" id="mainContent">
+        <!-- 頂部導航 -->
+        <div id="header-placeholder"></div>
+        <!-- 頂部導航由 JavaScript 動態生成 -->
+
+        <!-- 主要內容 -->
+        <div class="container-fluid" style="padding: 2rem;">
+            <!-- 頁面標題 -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="fw-bold mb-2">專案列表</h3>
+                    <p class="text-muted mb-0">管理所有ERP報價授權專案，追蹤工程估算進度與得標後執行</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-warning" onclick="ProjectList.syncAllERP()">
+                        <i class="fas fa-sync-alt me-2"></i>ERP同步
+                    </button>
+                    <button class="btn btn-success" onclick="ProjectList.exportAllProjects()">
+                        <i class="fas fa-download me-2"></i>匯出列表
+                    </button>
+                </div>
+            </div>
+
+            <!-- 統計卡片區域 -->
+            <div id="statsSection">
+                <div class="row g-4 mb-4" id="statsCards">
+                    <div class="col-xl col-lg-4 col-md-6">
+                        <div class="stats-card total">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="stats-number" id="statTotalCount">0</div>
+                                    <div class="stats-label">專案總數</div>
+                                    <div class="stats-trend text-muted">
+                                        ERP報價授權單同步專案
+                                    </div>
+                                </div>
+                                <div class="stats-icon total">
+                                    <i class="fas fa-file-alt"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-xl col-lg-4 col-md-6">
+                        <div class="stats-card bidding">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="stats-number" id="statBiddingCount">0</div>
+                                    <div class="stats-label">報價估算中</div>
+                                    <div class="stats-trend text-muted">
+                                        進入成本及工程估價階段
+                                    </div>
+                                </div>
+                                <div class="stats-icon bidding">
+                                    <i class="fas fa-calculator"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-xl col-lg-4 col-md-6">
+                        <div class="stats-card awarded">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="stats-number" id="statAwardedCount">0</div>
+                                    <div class="stats-label">已得標</div>
+                                    <div class="stats-trend text-muted">
+                                        進入詢議價及預算階段
+                                    </div>
+                                </div>
+                                <div class="stats-icon awarded">
+                                    <i class="fas fa-trophy"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-xl col-lg-4 col-md-6">
+                        <div class="stats-card completed">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="stats-number" id="statCompletedCount">0</div>
+                                    <div class="stats-label">已歸檔</div>
+                                    <div class="stats-trend text-muted">
+                                        未得標或已完成專案
+                                    </div>
+                                </div>
+                                <div class="stats-icon completed">
+                                    <i class="fas fa-archive"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 專案表格 -->
+            <div class="project-table-container">
+
+                <!-- 搜尋和篩選 (結構調整：比照 user_index.html) -->
+                <div class="search-filters">
+                    <!-- 搜尋 -->
+                    <div>
+                        <label class="form-label">搜尋專案</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" 
+                                   placeholder="編號、名稱..." id="searchKeyword">
+                        </div>
+                    </div>
+
+                    <!-- 投標日期區間 (使用 text input 配合 flatpickr) -->
+                    <div>
+                        <label class="form-label">投標日期區間</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control flatpickr-date" id="startDate" placeholder="開始日期" readonly>
+                            <span class="input-group-text bg-light text-muted" style="border-left: 0; border-right: 0;">至</span>
+                            <input type="text" class="form-control flatpickr-date" id="endDate" placeholder="結束日期" readonly>
+                        </div>
+                    </div>
+
+                    <!-- 專案狀態 -->
+                    <div>
+                        <label class="form-label">專案狀態</label>
+                        <select class="form-select" id="filterStatus">
+                            <option value="">全部狀態</option>
+                            <option value="draft">草稿</option>
+                            <option value="bidding">報價估算中</option>
+                            <option value="awarded">已得標</option>
+                            <option value="archived">已歸檔</option>
+                        </select>
+                    </div>
+                    
+                    <!-- 清空按鈕 -->
+                    <div class="d-flex align-items-end">
+                        <button class="btn btn-outline-secondary w-100" id="clearFilterBtn">
+                            <i class="fas fa-times me-2"></i>清空篩選
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table project-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 160px;" class="sortable" onclick="ProjectList.sortData('quotationId')">
+                                    報價編號 <i class="fas fa-sort" id="icon-quotationId"></i>
+                                </th>
+                                <th style="width: 140px;" class="sortable" onclick="ProjectList.sortData('id')">
+                                    專案編號 <i class="fas fa-sort" id="icon-id"></i>
+                                </th>
+                                <th class="sortable" onclick="ProjectList.sortData('name')">
+                                    工程名稱 <i class="fas fa-sort" id="icon-name"></i>
+                                </th>
+                                <th style="width: 140px;" class="sortable" onclick="ProjectList.sortData('owner')">
+                                    業主名稱 <i class="fas fa-sort" id="icon-owner"></i>
+                                </th>
+                                <th style="width: 140px;" class="sortable" onclick="ProjectList.sortData('customer')">
+                                    客戶名稱 <i class="fas fa-sort" id="icon-customer"></i>
+                                </th>
+                                <th style="width: 120px;" class="sortable" onclick="ProjectList.sortData('bidDate')">
+                                    投標日期 <i class="fas fa-sort" id="icon-bidDate"></i>
+                                </th>
+                                <th style="width: 130px;" class="sortable" onclick="ProjectList.sortData('status')">
+                                    專案狀態 <i class="fas fa-sort" id="icon-status"></i>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="projectListBody">
+                            <!-- 這裡的內容將由 JavaScript 動態生成 -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 無資料顯示區塊 -->
+                <div id="noDataMessage" class="text-center py-5" style="display: none;">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">沒有找到符合條件的專案</h5>
+                    <p class="text-muted small">請嘗試調整搜尋條件或清空篩選</p>
+                </div>
+
+                <!-- 分頁 -->
+                <div class="pagination-section">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        <div class="d-flex align-items-center">
+                            <span class="text-muted me-3">每頁顯示</span>
+                            <select class="form-select form-select-sm me-3" style="width: auto;" id="pageSizeSelect" onchange="ProjectList.changePageSize(this.value)">
+                                <option value="5">5</option>
+                                <option value="10" selected>10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                            </select>
+                            <span class="text-muted">筆，共 <span id="totalRecords">0</span> 筆</span>
+                        </div>
+                        <nav>
+                            <ul class="pagination pagination-sm mb-0" id="pagination">
+                                <!-- 分頁按鈕由 JS 生成 -->
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="../../../assets/js/bootstrap.bundle.min.js"></script>
+    <!-- Flatpickr JS -->
+    <script src="../../../assets/js/flatpickr.min.js"></script>
+    <script src="../../../assets/js/zh-tw.min.js"></script>
+    <!-- 路徑配置工具 -->
+    <script src="../../../assets/js/path_config.js"></script>
+    <!-- 母版腳本 -->
+    <script src="../../../assets/js/master_script.js"></script>
+    <!-- 側邊欄+頂部導航 JavaScript -->
+    <script src="../../../assets/js/layout_loader.js"></script>
+    <!-- 專案列表 JavaScript -->
+    <script src="list.js"></script>
+</body>
+</html>

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>緊急通報｜氣體異常</title>
+    <!-- 引入 Bootstrap 與 FontAwesome -->
+    <link rel="shortcut icon" href="../../../assets/images/favicons/favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- 引用本地 Bootstrap CSS -->
+    <link href="../../../assets/css/bootstrap.min.css" rel="stylesheet">
+    <!-- 引用本地 Font Awesome CSS -->
+    <link href="../../../assets/css/all.min.css" rel="stylesheet">
+    <!-- 引入 Leaflet 地圖 -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    
+    <style>
+        body {
+            background-color: #f1f5f9;
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+
+        .alert-container {
+            max-width: 480px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: white;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .alert-header {
+            background: linear-gradient(135deg, #dc2626, #991b1b);
+            padding: 1.5rem 1.5rem 3.5rem 1.5rem ;
+            text-align: center;
+            color: white;
+        }
+
+        .animate-blink {
+            animation: text-blink 1s infinite;
+        }
+
+        @keyframes text-blink {
+            0%, 100% {
+            opacity: 1;
+            transform: scale(1);
+            }
+            50% {
+            opacity: 0.8;
+            transform: scale(1.1);
+            }
+        }
+
+        .main-card {
+            margin: -30px 1.5rem 1.5rem;
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .badge-label {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 50px;
+            background: #dc2626;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            border: 4px solid white;
+        }
+
+        .value-box {
+            background: #fef2f2;
+            border: 2px solid #fecaca;
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .value-text {
+            font-size: 3.5rem;
+            font-weight: 900;
+            line-height: 1;
+            color: #dc2626;
+            font-family: 'Roboto Mono', monospace;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.8rem 0;
+            border-bottom: 1px dashed #e2e8f0;
+            font-size: 0.95rem;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .info-value {
+            color: #0f172a;
+            font-weight: 700;
+            text-align: right;
+        }
+
+        .map-wrapper {
+            height: 200px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #cbd5e1;
+            margin-top: 1.5rem;
+        }
+
+        .action-btn {
+            padding: 1rem;
+            font-size: 1.1rem;
+            border-radius: 12px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="alert-container">
+        <div class="alert-header">
+            <i class="fas fa-exclamation-triangle fa-2x mb-3 animate-blink"></i>
+            <h3 class="fw-bold mb-1">氣體濃度異常警報</h3>
+            <p class="mb-0 text-white-50" id="currentTime"></p>
+        </div>
+
+        <div class="main-card">
+            <div class="badge-label" id="sensorLabel">-</div>
+            <div class="text-center mt-4 mb-2">
+                <h4 class="fw-bold text-dark" id="sensorName">讀取中...</h4>
+            </div>
+            
+            <!-- 3. 異常數值區塊 -->
+            <div class="value-box">
+                <div class="text-danger small fw-bold mb-1">當前偵測濃度</div>
+                <div class="d-flex align-items-baseline justify-content-center gap-1">
+                    <div class="value-text" id="sensorValue">0.0</div>
+                    <div class="fw-bold text-danger fs-6" id="sensorUnit">PPM</div>
+                </div>
+            </div>
+
+            <!-- 4. 綜合資訊區塊 (包含警戒值、發生時間、持續時間、通報人) -->
+            <div class="info-group" style="margin-top: 1.5rem;">
+                <div class="info-row">
+                    <span class="info-label"><i class="fas fa-tachometer-alt me-1"></i> 警戒值</span>
+                    <span class="info-value" id="sensorLimit">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label"><i class="far fa-clock me-1"></i> 發生時間</span>
+                    <span class="info-value" id="alarmTime">--:--:--</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label"><i class="fas fa-stopwatch me-1"></i> 持續時間</span>
+                    <span class="info-value text-danger" id="alarmDuration">- 分 - 秒</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label"><i class="fas fa-users me-1"></i>通報名單</span>
+                    <span class="info-value" id="sensorNotifiers">-</span>
+                </div>
+            </div>
+
+            <!-- 5. 點位地圖 -->
+            <div class="map-wrapper" id="miniMap"></div>
+        </div>
+
+        <div class="px-4 pb-5">
+            <!-- <button class="btn btn-primary w-100 action-btn mb-3" onclick="confirmReceipt()">
+                <i class="fas fa-check-circle me-2"></i>我已收到，前往處理
+            </button> -->
+            <p class="text-center text-muted small mb-0">良聯工業｜氣體偵測系統自動發送</p>
+        </div>
+    </div>
+
+    <script>
+        // 1. 模擬資料庫 (加入發生時間、持續時間、警戒值與通報人的模擬值)
+        const mockDatabase = [
+            { id: 'G01', label: 'A', name: '行政大樓 - B1F 廚房', lat: 22.5027, lng: 120.4051, value: 65.5, unit: 'PPM', limit: 50, notifiers: '王大明, 安環組長', alarmTime: '09:12:45', alarmDuration: '3分 25秒' },
+            { id: 'G02', label: 'B', name: '行政大樓 - 1F LPG室', lat: 22.50255, lng: 120.40512, value: 52.0, unit: 'PPM', limit: 50, notifiers: '王大明', alarmTime: '10:05:10', alarmDuration: '1分 10秒' },
+            { id: 'G03', label: 'C', name: '氣體鋼瓶區 - 乙炔', lat: 22.50095, lng: 120.4055, value: 25.4, unit: 'PPM', limit: 20, notifiers: '李小華, 張廠長', alarmTime: '14:30:00', alarmDuration: '5分 40秒' },
+            { id: 'G04', label: 'D', name: '氣體鋼瓶區 - LPG', lat: 22.5008, lng: 120.40554, value: 25.5, unit: 'PPM', limit: 20, notifiers: '陳志強, 安環組長', alarmTime: '16:45:22', alarmDuration: '0分 45秒' },
+        ];
+
+        // 2. 解析網址參數 (?id=G01)
+        const urlParams = new URLSearchParams(window.location.search);
+        let targetId = urlParams.get('id');
+        
+        // 若沒有 ID 參數，預設顯示第一筆作為展示用
+        if (!targetId) targetId = 'G01';
+
+        // 3. 尋找對應的點位資料
+        const sensorData = mockDatabase.find(s => s.id === targetId);
+
+        if (sensorData) {
+            // 填入資料
+            document.getElementById('sensorLabel').textContent = sensorData.label;
+            document.getElementById('sensorName').textContent = sensorData.name;
+            document.getElementById('sensorValue').textContent = sensorData.value.toFixed(1);
+            document.getElementById('sensorUnit').textContent = sensorData.unit;
+            document.getElementById('sensorLimit').textContent = `${sensorData.limit} ${sensorData.unit}`;
+            document.getElementById('sensorNotifiers').textContent = sensorData.notifiers;
+            document.getElementById('alarmTime').textContent = sensorData.alarmTime;
+            document.getElementById('alarmDuration').textContent = sensorData.alarmDuration;
+
+            // 繪製地圖
+            const map = L.map('miniMap', { zoomControl: false, dragging: false }).setView([sensorData.lat, sensorData.lng], 19);
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}').addTo(map);
+            
+            const customIcon = L.divIcon({
+                className: 'custom-icon',
+                html: `<div style="width:24px;height:24px;background:#dc2626;border-radius:50%;border:3px solid white;color:white;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:12px;box-shadow:0 2px 5px rgba(0,0,0,0.3);">${sensorData.label}</div>`,
+                iconSize: [24, 24],
+                iconAnchor: [12, 12]
+            });
+            L.marker([sensorData.lat, sensorData.lng], {icon: customIcon}).addTo(map);
+        } else {
+            // 防呆機制：找不到點位
+            document.getElementById('sensorName').textContent = "無效的警報連結";
+            document.getElementById('sensorValue').textContent = "--";
+            document.getElementById('miniMap').innerHTML = "<div class='d-flex align-items-center justify-content-center h-100 text-muted'>無法載入地圖</div>";
+        }
+
+        function confirmReceipt() {
+            alert('已回傳確認訊號！現場指揮官將收到您的回覆。');
+        }
+    </script>
+</body>
+</html>
