@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Redirecting...</title>
+    <script>
+        (function() {
+            // 檢查是否登入 (假設 login.html 寫入 sessionStorage)
+            const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+            
+            if (isLoggedIn === 'true') {
+                // 已登入 -> 進入儀表板
+                window.location.href = 'core/home/index.html';
+            } else {
+                // 未登入 -> 回到登入頁
+                window.location.href = 'login.html';
+            }
+        })();
+    </script>
+</head>
+<body>
+</body>
+</html>
